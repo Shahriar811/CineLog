@@ -18,28 +18,34 @@ import javax.inject.Singleton
 
 @Singleton
 class AuthRepositoryImpl @Inject constructor(
-    private val firebaseAuth: FirebaseAuth,
+    private val firebaseAuth: FirebaseAuth?,
 ) : AuthRepository {
 
     override val currentUser: Flow<FirebaseUser?> = callbackFlow {
+        val auth = firebaseAuth
+        if (auth == null) {
+            trySend(null)
+            close()
+            return@callbackFlow
+        }
         val listener = FirebaseAuth.AuthStateListener { auth ->
             trySend(auth.currentUser)
         }
-        firebaseAuth.addAuthStateListener(listener)
-        trySend(firebaseAuth.currentUser)
-        awaitClose { firebaseAuth.removeAuthStateListener(listener) }
+        auth.addAuthStateListener(listener)
+        trySend(auth.currentUser)
+        awaitClose { auth.removeAuthStateListener(listener) }
     }
 
     override suspend fun signInWithEmail(email: String, password: String) {
-        firebaseAuth.signInWithEmailAndPassword(email, password).await()
+        requireFirebaseAuth().signInWithEmailAndPassword(email, password).await()
     }
 
     override suspend fun signUpWithEmail(email: String, password: String) {
-        firebaseAuth.createUserWithEmailAndPassword(email, password).await()
+        requireFirebaseAuth().createUserWithEmailAndPassword(email, password).await()
     }
 
     override suspend fun sendPasswordReset(email: String) {
-        firebaseAuth.sendPasswordResetEmail(email).await()
+        requireFirebaseAuth().sendPasswordResetEmail(email).await()
     }
 
     override suspend fun signInWithGoogle(activity: Activity) {
@@ -62,11 +68,16 @@ class AuthRepositoryImpl @Inject constructor(
 
         val googleCred = GoogleIdTokenCredential.createFrom(result.credential.data)
         val firebaseCred = GoogleAuthProvider.getCredential(googleCred.idToken, null)
-        firebaseAuth.signInWithCredential(firebaseCred).await()
+        requireFirebaseAuth().signInWithCredential(firebaseCred).await()
     }
 
     override suspend fun signOut() {
-        firebaseAuth.signOut()
+        firebaseAuth?.signOut()
+    }
+
+    private fun requireFirebaseAuth(): FirebaseAuth {
+        return firebaseAuth
+            ?: error("Firebase is not initialized. Add app/google-services.json and rebuild the app.")
     }
 }
 

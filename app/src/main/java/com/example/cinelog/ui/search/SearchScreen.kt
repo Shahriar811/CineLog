@@ -1,5 +1,6 @@
 package com.example.cinelog.ui.search
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Card
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -56,6 +58,28 @@ fun SearchScreen(
             }
         }
 
+        if (state.query.isNotBlank() && state.suggestions.isNotEmpty()) {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+            ) {
+                Column(modifier = Modifier.padding(vertical = 6.dp)) {
+                    state.suggestions.forEach { suggestion ->
+                        Text(
+                            text = suggestion.title,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 12.dp, vertical = 8.dp)
+                                .clickable { viewModel.onSuggestionClicked(suggestion) },
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
+                    }
+                }
+            }
+            Spacer(Modifier.height(8.dp))
+        }
+
         if (state.isLoading) {
             Column(
                 modifier = Modifier
@@ -82,7 +106,7 @@ fun SearchScreen(
         if (state.items.isEmpty()) {
             Text(
                 modifier = Modifier.padding(16.dp),
-                text = "Try searching for a movie (e.g. Dune, Inception, Interstellar).",
+                text = "Start typing for suggestions (e.g. 3 -> 3 Idiots, Dune, Inception).",
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         } else {

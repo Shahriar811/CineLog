@@ -2,6 +2,7 @@ package com.example.cinelog.ui.trending
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.cinelog.core.model.MovieCategory
 import com.example.cinelog.core.model.MovieSummary
 import com.example.cinelog.tmdb.TmdbRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -13,6 +14,7 @@ import javax.inject.Inject
 
 data class TrendingUiState(
     val isLoading: Boolean = false,
+    val selectedCategory: MovieCategory = MovieCategory.TRENDING,
     val items: List<MovieSummary> = emptyList(),
     val error: String? = null,
 )
@@ -29,15 +31,19 @@ class TrendingViewModel @Inject constructor(
         refresh()
     }
 
-    fun refresh() {
+    fun onCategorySelected(category: MovieCategory) {
+        refresh(category)
+    }
+
+    fun refresh(category: MovieCategory = state.value.selectedCategory) {
         viewModelScope.launch {
-            _state.value = _state.value.copy(isLoading = true, error = null)
-            runCatching { tmdbRepository.trendingMovies(page = 1) }
+            _state.value = _state.value.copy(isLoading = true, error = null, selectedCategory = category)
+            runCatching { tmdbRepository.moviesByCategory(category = category, page = 1) }
                 .onSuccess { movies ->
-                    _state.value = TrendingUiState(isLoading = false, items = movies)
+                    _state.value = _state.value.copy(isLoading = false, items = movies)
                 }
                 .onFailure { e ->
-                    _state.value = TrendingUiState(isLoading = false, items = emptyList(), error = e.message)
+                    _state.value = _state.value.copy(isLoading = false, items = emptyList(), error = e.message)
                 }
         }
     }
