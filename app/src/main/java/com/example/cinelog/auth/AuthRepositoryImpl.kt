@@ -51,7 +51,9 @@ class AuthRepositoryImpl @Inject constructor(
     override suspend fun signInWithGoogle(activity: Activity) {
         val webClientId = BuildConfig.GOOGLE_WEB_CLIENT_ID.trim()
         require(webClientId.isNotBlank()) {
-            "GOOGLE_WEB_CLIENT_ID is missing. Add it to local.properties as GOOGLE_WEB_CLIENT_ID=..."
+            "Google Web client ID is missing. In Firebase Console: enable Google sign-in, add your app SHA-1, " +
+                "then re-download app/google-services.json (oauth_client must not be empty), or set " +
+                "GOOGLE_WEB_CLIENT_ID in local.properties to the Web client ID from Google Cloud Console."
         }
 
         val googleIdOption = GetGoogleIdOption.Builder()

@@ -8,37 +8,66 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import com.example.cinelog.settings.ThemeMode
 
-private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+private val MidnightNeonScheme = darkColorScheme(
+    primary = NeonAccent,
+    onPrimary = Color.White,
+    primaryContainer = MidnightSurfaceMuted,
+    onPrimaryContainer = TextPrimaryDark,
+    secondary = StarRating,
+    onSecondary = MidnightBackground,
+    secondaryContainer = MidnightSurface,
+    onSecondaryContainer = TextPrimaryDark,
+    tertiary = StarRating,
+    onTertiary = MidnightBackground,
+    background = MidnightBackground,
+    onBackground = TextPrimaryDark,
+    surface = MidnightSurface,
+    onSurface = TextPrimaryDark,
+    surfaceVariant = MidnightSurfaceMuted,
+    onSurfaceVariant = TextSecondaryDark,
+    surfaceContainer = MidnightSurface,
+    surfaceContainerHigh = MidnightSurfaceMuted,
+    surfaceContainerLow = MidnightBackground,
+    error = Danger,
+    onError = Color.White,
+    outline = MidnightSurfaceMuted,
+    outlineVariant = ToggleTrackOff,
 )
 
-private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
-
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
+private val GlassLightScheme = lightColorScheme(
+    primary = GlassAccent,
     onPrimary = Color.White,
+    primaryContainer = Color(0xFFD4EBFC),
+    onPrimaryContainer = GlassTextPrimary,
+    secondary = GlassAccentTeal,
     onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
+    secondaryContainer = GlassSurfaceMuted,
+    onSecondaryContainer = GlassTextPrimary,
+    tertiary = StarRating,
+    onTertiary = GlassTextPrimary,
+    background = Color(0xFFF4F8FD),
+    onBackground = GlassTextPrimary,
+    surface = GlassSurface,
+    onSurface = GlassTextPrimary,
+    surfaceVariant = GlassSurfaceMuted,
+    onSurfaceVariant = GlassTextSecondary,
+    surfaceContainer = Color(0xFFF8FAFD),
+    surfaceContainerHigh = Color(0xFFE8EEF5),
+    error = Danger,
+    onError = Color.White,
+    outline = Color(0xFFC5D4E3),
+    outlineVariant = Color(0xFFD8E2EC),
 )
 
 @Composable
 fun CineLogTheme(
     themeMode: ThemeMode = ThemeMode.SYSTEM,
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
-    content: @Composable () -> Unit
+    dynamicColor: Boolean = false,
+    content: @Composable () -> Unit,
 ) {
     val darkTheme = when (themeMode) {
         ThemeMode.SYSTEM -> isSystemInDarkTheme()
@@ -51,14 +80,13 @@ fun CineLogTheme(
             val context = LocalContext.current
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
-
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
+        darkTheme -> MidnightNeonScheme
+        else -> GlassLightScheme
     }
 
     MaterialTheme(
         colorScheme = colorScheme,
         typography = Typography,
-        content = content
+        content = content,
     )
 }

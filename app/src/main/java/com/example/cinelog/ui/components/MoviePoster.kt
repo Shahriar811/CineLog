@@ -7,7 +7,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -21,7 +21,7 @@ fun MoviePoster(
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(12.dp))
-            .background(Color.Black.copy(alpha = 0.08f)),
+            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.55f)),
     ) {
         AsyncImage(
             modifier = Modifier.fillMaxSize(),

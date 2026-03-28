@@ -12,11 +12,16 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.RadioButtonDefaults
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -40,6 +45,7 @@ fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel(),
 ) {
     val themeMode by viewModel.themeMode.collectAsState()
+    val preferHighRefreshRate by viewModel.preferHighRefreshRate.collectAsState()
     val context = LocalContext.current
     val scroll = rememberScrollState()
 
@@ -50,12 +56,37 @@ fun SettingsScreen(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        Text("Settings", style = MaterialTheme.typography.headlineSmall)
-
         Text("Appearance", style = MaterialTheme.typography.titleMedium)
         ThemeModeOptionRow("System", themeMode == ThemeMode.SYSTEM) { viewModel.setThemeMode(ThemeMode.SYSTEM) }
         ThemeModeOptionRow("Light", themeMode == ThemeMode.LIGHT) { viewModel.setThemeMode(ThemeMode.LIGHT) }
         ThemeModeOptionRow("Dark", themeMode == ThemeMode.DARK) { viewModel.setThemeMode(ThemeMode.DARK) }
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 6.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text("Smooth scrolling (high refresh)")
+                Text(
+                    text = "Requests 90/120Hz on supported devices.",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.bodySmall,
+                )
+            }
+            Switch(
+                checked = preferHighRefreshRate,
+                onCheckedChange = viewModel::setPreferHighRefreshRate,
+                colors = SwitchDefaults.colors(
+                    checkedThumbColor = MaterialTheme.colorScheme.primary,
+                    checkedTrackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.45f),
+                    uncheckedThumbColor = MaterialTheme.colorScheme.outline,
+                    uncheckedTrackColor = MaterialTheme.colorScheme.outlineVariant,
+                ),
+            )
+        }
 
         Spacer(Modifier.height(8.dp))
 
@@ -68,6 +99,7 @@ fun SettingsScreen(
         OutlinedButton(
             modifier = Modifier.fillMaxWidth(),
             onClick = onSignOut,
+            shape = RoundedCornerShape(50),
         ) {
             Text("Sign out")
         }
@@ -77,6 +109,10 @@ fun SettingsScreen(
             modifier = Modifier.fillMaxWidth(),
             onClick = {},
             enabled = false,
+            colors = ButtonDefaults.buttonColors(
+                disabledContainerColor = MaterialTheme.colorScheme.error.copy(alpha = 0.28f),
+                disabledContentColor = MaterialTheme.colorScheme.error,
+            ),
         ) {
             Text("Delete account (coming soon)")
         }
@@ -144,7 +180,14 @@ private fun ThemeModeOptionRow(
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
         Text(label)
-        RadioButton(selected = selected, onClick = onClick)
+        RadioButton(
+            selected = selected,
+            onClick = onClick,
+            colors = RadioButtonDefaults.colors(
+                selectedColor = MaterialTheme.colorScheme.primary,
+                unselectedColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            ),
+        )
     }
 }
 

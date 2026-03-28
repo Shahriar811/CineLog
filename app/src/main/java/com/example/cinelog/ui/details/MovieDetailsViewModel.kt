@@ -3,6 +3,8 @@ package com.example.cinelog.ui.details
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.cinelog.core.model.MovieDetails
+import com.example.cinelog.lists.MovieListRepository
+import com.example.cinelog.lists.UserMovieList
 import com.example.cinelog.reviews.MovieReview
 import com.example.cinelog.reviews.ReviewRepository
 import com.example.cinelog.tmdb.TmdbRepository
@@ -16,32 +18,49 @@ import javax.inject.Inject
 data class MovieDetailsUiState(
     val isLoading: Boolean = false,
     val details: MovieDetails? = null,
-    val ratingOutOf10: Int = 8,
+    val ratingOutOf10: Int? = null,
     val reviewText: String = "",
     val saveOnline: Boolean = true,
     val movieReviews: List<MovieReview> = emptyList(),
     val saveMessage: String? = null,
     val error: String? = null,
+    val userLists: List<UserMovieList> = emptyList(),
+    val listMessage: String? = null,
+    val listMenuExpanded: Boolean = false,
 )
 
 @HiltViewModel
 class MovieDetailsViewModel @Inject constructor(
     private val tmdbRepository: TmdbRepository,
     private val reviewRepository: ReviewRepository,
+    private val movieListRepository: MovieListRepository,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(MovieDetailsUiState(isLoading = true))
     val state: StateFlow<MovieDetailsUiState> = _state.asStateFlow()
 
+    init {
+        viewModelScope.launch {
+            runCatching {
+                movieListRepository.userLists().collect { lists ->
+                    _state.value = _state.value.copy(userLists = lists)
+                }
+            }
+        }
+    }
+
     fun load(movieId: Long) {
         viewModelScope.launch {
-            _state.value = MovieDetailsUiState(isLoading = true)
+            val keepLists = _state.value.userLists
+            _state.value = MovieDetailsUiState(isLoading = true, userLists = keepLists)
             runCatching { tmdbRepository.movieDetails(movieId) }
                 .onSuccess { details ->
-                    _state.value = _state.value.copy(isLoading = false, details = details)
+                    _state.value = _state.value.copy(isLoading = false, details = details, error = null)
                     observeReviews(movieId)
                 }
-                .onFailure { e -> _state.value = MovieDetailsUiState(isLoading = false, error = e.message) }
+                .onFailure { e ->
+                    _state.value = _state.value.copy(isLoading = false, error = e.message)
+                }
         }
     }
 
@@ -57,6 +76,49 @@ class MovieDetailsViewModel @Inject constructor(
         _state.value = _state.value.copy(saveOnline = value)
     }
 
+    fun setListMenuExpanded(expanded: Boolean) {
+        _state.value = _state.value.copy(listMenuExpanded = expanded)
+    }
+
+    fun addMovieToList(listId: String) {
+        val movieId = state.value.details?.id ?: return
+        viewModelScope.launch {
+            _state.value = _state.value.copy(error = null)
+            runCatching {
+                movieListRepository.addMovieToList(listId, movieId)
+            }.onSuccess {
+                _state.value = _state.value.copy(
+                    listMessage = "Saved to list.",
+                    listMenuExpanded = false,
+                )
+            }.onFailure { e ->
+                _state.value = _state.value.copy(error = e.message, listMenuExpanded = false)
+            }
+        }
+    }
+
+    fun createListAndAdd(name: String) {
+        val movieId = state.value.details?.id ?: return
+        viewModelScope.launch {
+            _state.value = _state.value.copy(error = null)
+            runCatching {
+                val id = movieListRepository.createList(name)
+                movieListRepository.addMovieToList(id, movieId)
+            }.onSuccess {
+                _state.value = _state.value.copy(
+                    listMessage = "Created list and added movie.",
+                    listMenuExpanded = false,
+                )
+            }.onFailure { e ->
+                _state.value = _state.value.copy(error = e.message, listMenuExpanded = false)
+            }
+        }
+    }
+
+    fun clearListMessage() {
+        _state.value = _state.value.copy(listMessage = null)
+    }
+
     fun saveReview() {
         val details = state.value.details ?: return
         val ui = state.value
@@ -65,15 +127,17 @@ class MovieDetailsViewModel @Inject constructor(
                 if (!ui.saveOnline) {
                     error("Enable 'Save online' to upload your review.")
                 }
+                val rating = ui.ratingOutOf10 ?: error("Please select a rating.")
                 reviewRepository.upsertReview(
                     movieId = details.id,
                     movieTitle = details.title,
-                    ratingOutOf10 = ui.ratingOutOf10,
+                    ratingOutOf10 = rating,
                     reviewText = ui.reviewText,
                 )
             }.onSuccess {
                 _state.value = _state.value.copy(
                     reviewText = "",
+                    ratingOutOf10 = null,
                     saveMessage = "Review saved online.",
                     error = null,
                 )
@@ -95,4 +159,3 @@ class MovieDetailsViewModel @Inject constructor(
         }
     }
 }
-

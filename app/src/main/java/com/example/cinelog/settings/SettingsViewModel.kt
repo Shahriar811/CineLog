@@ -21,9 +21,22 @@ class SettingsViewModel @Inject constructor(
             initialValue = ThemeMode.SYSTEM,
         )
 
+    val preferHighRefreshRate: StateFlow<Boolean> =
+        settingsRepository.preferHighRefreshRate.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = false,
+        )
+
     fun setThemeMode(mode: ThemeMode) {
         viewModelScope.launch {
             settingsRepository.setThemeMode(mode)
+        }
+    }
+
+    fun setPreferHighRefreshRate(enabled: Boolean) {
+        viewModelScope.launch {
+            settingsRepository.setPreferHighRefreshRate(enabled)
         }
     }
 }

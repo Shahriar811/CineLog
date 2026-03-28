@@ -1,3 +1,4 @@
+import groovy.json.JsonSlurper
 import java.util.Properties
 
 plugins {
@@ -22,6 +23,30 @@ val localProperties = Properties().apply {
     }
 }
 
+/** Web client ID (client_type 3) for Google Sign-In — from Firebase google-services.json when OAuth clients are provisioned. */
+@Suppress("UNCHECKED_CAST")
+fun readGoogleWebClientIdFromGoogleServices(): String {
+    val f = file("google-services.json")
+    if (!f.exists()) return ""
+    val root = JsonSlurper().parse(f) as Map<String, Any>
+    val clients = root["client"] as? List<Map<String, Any>> ?: return ""
+    for (client in clients) {
+        val oauth = client["oauth_client"] as? List<Map<String, Any>>
+        oauth?.forEach { o ->
+            val type = (o["client_type"] as? Number)?.toInt() ?: return@forEach
+            if (type == 3) return (o["client_id"] as? String)?.trim().orEmpty()
+        }
+        val services = client["services"] as? Map<String, Any>
+        val appinvite = services?.get("appinvite_service") as? Map<String, Any>
+        val other = appinvite?.get("other_platform_oauth_client") as? List<Map<String, Any>>
+        other?.forEach { o ->
+            val type = (o["client_type"] as? Number)?.toInt() ?: return@forEach
+            if (type == 3) return (o["client_id"] as? String)?.trim().orEmpty()
+        }
+    }
+    return ""
+}
+
 android {
     namespace = "com.example.cinelog"
     compileSdk {
@@ -42,6 +67,7 @@ android {
         buildConfigField("String", "TMDB_BASE_URL", "\"https://api.themoviedb.org/3/\"")
 
         val googleWebClientId = (localProperties["GOOGLE_WEB_CLIENT_ID"] as String?)?.trim().orEmpty()
+            .ifBlank { readGoogleWebClientIdFromGoogleServices() }
         buildConfigField("String", "GOOGLE_WEB_CLIENT_ID", "\"$googleWebClientId\"")
     }
 

@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -74,6 +75,10 @@ fun MyReviewsScreen(
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
                 onClick = { onMovieClick(review.movieId) },
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
             ) {
                 Column(modifier = Modifier.padding(14.dp)) {
                     Text(review.movieTitle, style = MaterialTheme.typography.titleMedium)
