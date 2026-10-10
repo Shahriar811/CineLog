@@ -6,9 +6,12 @@ import com.example.cinelog.core.model.MovieDetails
 import com.example.cinelog.lists.MovieListRepository
 import com.example.cinelog.lists.UserMovieList
 import com.example.cinelog.reviews.MovieReview
+import com.example.cinelog.reviews.ReviewComment
 import com.example.cinelog.reviews.ReviewRepository
 import com.example.cinelog.tmdb.TmdbRepository
+import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -34,7 +37,10 @@ class MovieDetailsViewModel @Inject constructor(
     private val tmdbRepository: TmdbRepository,
     private val reviewRepository: ReviewRepository,
     private val movieListRepository: MovieListRepository,
+    private val firebaseAuth: FirebaseAuth?,
 ) : ViewModel() {
+
+    val currentUserId: String? = firebaseAuth?.currentUser?.uid
 
     private val _state = MutableStateFlow(MovieDetailsUiState(isLoading = true))
     val state: StateFlow<MovieDetailsUiState> = _state.asStateFlow()
@@ -51,21 +57,20 @@ class MovieDetailsViewModel @Inject constructor(
 
     fun load(movieId: Long) {
         viewModelScope.launch {
-            val keepLists = _state.value.userLists
-            _state.value = MovieDetailsUiState(isLoading = true, userLists = keepLists)
-            runCatching { tmdbRepository.movieDetails(movieId) }
-                .onSuccess { details ->
-                    _state.value = _state.value.copy(isLoading = false, details = details, error = null)
-                    observeReviews(movieId)
-                }
-                .onFailure { e ->
-                    _state.value = _state.value.copy(isLoading = false, error = e.message)
-                }
+            _state.value = _state.value.copy(isLoading = true, error = null)
+            runCatching {
+                tmdbRepository.movieDetails(movieId)
+            }.onSuccess { details ->
+                _state.value = _state.value.copy(isLoading = false, details = details)
+                observeReviews(movieId)
+            }.onFailure { e ->
+                _state.value = _state.value.copy(isLoading = false, error = e.message)
+            }
         }
     }
 
-    fun setRating(value: Int) {
-        _state.value = _state.value.copy(ratingOutOf10 = value.coerceIn(1, 10), saveMessage = null)
+    fun setRating(rating: Int) {
+        _state.value = _state.value.copy(ratingOutOf10 = rating, saveMessage = null)
     }
 
     fun setReviewText(value: String) {
@@ -133,6 +138,7 @@ class MovieDetailsViewModel @Inject constructor(
                     movieTitle = details.title,
                     ratingOutOf10 = rating,
                     reviewText = ui.reviewText,
+                    posterPath = details.posterPath,
                 )
             }.onSuccess {
                 _state.value = _state.value.copy(
@@ -144,6 +150,28 @@ class MovieDetailsViewModel @Inject constructor(
             }.onFailure { e ->
                 _state.value = _state.value.copy(saveMessage = null, error = e.message)
             }
+        }
+    }
+
+    fun toggleLike(reviewId: String) {
+        viewModelScope.launch {
+            reviewRepository.toggleLike(reviewId)
+        }
+    }
+
+    fun toggleDislike(reviewId: String) {
+        viewModelScope.launch {
+            reviewRepository.toggleDislike(reviewId)
+        }
+    }
+
+    fun commentsForReview(reviewId: String): Flow<List<ReviewComment>> {
+        return reviewRepository.commentsForReview(reviewId)
+    }
+
+    fun addComment(reviewId: String, text: String) {
+        viewModelScope.launch {
+            reviewRepository.addComment(reviewId, text)
         }
     }
 

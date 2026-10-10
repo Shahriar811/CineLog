@@ -3,8 +3,11 @@ package com.example.cinelog.auth
 import android.app.Activity
 import androidx.credentials.CredentialManager
 import androidx.credentials.GetCredentialRequest
+import androidx.credentials.exceptions.GetCredentialCancellationException
+import androidx.credentials.exceptions.NoCredentialException
 import com.example.cinelog.BuildConfig
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
+import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -56,21 +59,75 @@ class AuthRepositoryImpl @Inject constructor(
                 "GOOGLE_WEB_CLIENT_ID in local.properties to the Web client ID from Google Cloud Console."
         }
 
+        val credentialManager = CredentialManager.create(activity)
+
         val googleIdOption = GetGoogleIdOption.Builder()
             .setServerClientId(webClientId)
             .setFilterByAuthorizedAccounts(false)
+            .setAutoSelectEnabled(false)
             .build()
 
         val request = GetCredentialRequest.Builder()
             .addCredentialOption(googleIdOption)
             .build()
 
-        val credentialManager = CredentialManager.create(activity)
-        val result = credentialManager.getCredential(activity, request)
-
-        val googleCred = GoogleIdTokenCredential.createFrom(result.credential.data)
-        val firebaseCred = GoogleAuthProvider.getCredential(googleCred.idToken, null)
-        requireFirebaseAuth().signInWithCredential(firebaseCred).await()
+        try {
+            val result = credentialManager.getCredential(activity, request)
+            val googleCred = GoogleIdTokenCredential.createFrom(result.credential.data)
+            val firebaseCred = GoogleAuthProvider.getCredential(googleCred.idToken, null)
+            requireFirebaseAuth().signInWithCredential(firebaseCred).await()
+        } catch (e: GetCredentialCancellationException) {
+            // User cancelled Google Account selection prompt
+            return
+        } catch (e: Exception) {
+            val message = e.message.orEmpty()
+            if (message.contains("28444", ignoreCase = true) ||
+                message.contains("Developer console is not set up correctly", ignoreCase = true)
+            ) {
+                // If Play Services is still propagating the new SHA credentials or consent screen,
+                // try fallback to GetSignInWithGoogleOption or guide user to direct Gmail
+                try {
+                    val fallbackOption = GetSignInWithGoogleOption.Builder(webClientId).build()
+                    val fallbackRequest = GetCredentialRequest.Builder()
+                        .addCredentialOption(fallbackOption)
+                        .build()
+                    val fallbackResult = credentialManager.getCredential(activity, fallbackRequest)
+                    val googleCred = GoogleIdTokenCredential.createFrom(fallbackResult.credential.data)
+                    val firebaseCred = GoogleAuthProvider.getCredential(googleCred.idToken, null)
+                    requireFirebaseAuth().signInWithCredential(firebaseCred).await()
+                    return
+                } catch (fallbackCancel: GetCredentialCancellationException) {
+                    return
+                } catch (fallbackEx: Exception) {
+                    throw IllegalStateException(
+                        "Google Play Services is updating OAuth credentials. " +
+                            "Please tap 'Sign in or Open account with Gmail' below to continue directly with your Gmail address.",
+                        e,
+                    )
+                }
+            }
+            if (e is NoCredentialException || message.contains("No credentials available", ignoreCase = true)) {
+                try {
+                    val fallbackOption = GetSignInWithGoogleOption.Builder(webClientId).build()
+                    val fallbackRequest = GetCredentialRequest.Builder()
+                        .addCredentialOption(fallbackOption)
+                        .build()
+                    val fallbackResult = credentialManager.getCredential(activity, fallbackRequest)
+                    val googleCred = GoogleIdTokenCredential.createFrom(fallbackResult.credential.data)
+                    val firebaseCred = GoogleAuthProvider.getCredential(googleCred.idToken, null)
+                    requireFirebaseAuth().signInWithCredential(firebaseCred).await()
+                    return
+                } catch (fallbackCancel: GetCredentialCancellationException) {
+                    return
+                } catch (fallbackEx: Exception) {
+                    throw IllegalStateException(
+                        "No Google account found on this device. Please use 'Sign in or Open account with Gmail' below.",
+                        e,
+                    )
+                }
+            }
+            throw e
+        }
     }
 
     override suspend fun signOut() {
@@ -82,4 +139,3 @@ class AuthRepositoryImpl @Inject constructor(
             ?: error("Firebase is not initialized. Add app/google-services.json and rebuild the app.")
     }
 }
-

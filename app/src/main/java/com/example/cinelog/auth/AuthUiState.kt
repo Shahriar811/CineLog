@@ -5,5 +5,5 @@ data class AuthUiState(
     val password: String = "",
     val isLoading: Boolean = false,
     val message: String? = null,
+    val isSuccessMessage: Boolean = false,
 )
-

@@ -1,5 +1,7 @@
 package com.example.cinelog.ui
 
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -18,6 +20,10 @@ fun AppRoot() {
     NavHost(
         navController = navController,
         startDestination = if (isSignedIn) Route.Main.value else Route.Auth.value,
+        enterTransition = { fadeIn() },
+        exitTransition = { fadeOut() },
+        popEnterTransition = { fadeIn() },
+        popExitTransition = { fadeOut() },
     ) {
         authGraph(
             navController = navController,
@@ -37,4 +43,3 @@ fun AppRoot() {
         )
     }
 }
-

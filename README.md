@@ -1,17 +1,24 @@
 # CineLog
 
 CineLog is a modern Android movie review app built with Kotlin and Jetpack Compose.  
-It uses TMDB for movie discovery and Firebase for authentication and user reviews.
+It uses TMDB for movie discovery and Firebase for authentication, user profiles, and social reviews.
 
 ## Features
 
 - Email/Password authentication (Firebase Auth)
 - Google Sign-In (Credential Manager + Firebase Auth)
+- User profiles with avatar, bio, and username
 - Trending movies from TMDB
-- Search movies by title
-- Movie details screen
+- Search movies by title and browse by category
+- Movie details screen with reviews
+- Create, edit, and delete reviews (backed by Firestore)
+- Social reviews feed with likes and comments
+- My Reviews screen
+- Custom movie lists (create, manage, add/remove movies)
 - Light / Dark / System theme switch (saved with DataStore)
-- Settings screen with credits section
+- Settings screen with reset password, delete account, and credits
+- Shimmer loading effects
+- Profile setup with image cropping
 - Custom launcher icon
 
 ## Tech Stack
@@ -25,13 +32,14 @@ It uses TMDB for movie discovery and Firebase for authentication and user review
 - **Backend:** Firebase Auth + Firestore
 - **Navigation:** Navigation Compose
 - **Storage:** DataStore Preferences
+- **Pagination:** Paging 3
 
 ## Project Setup
 
 ### 1) Clone and open
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/Shahriar811/CineLog.git
 cd CineLog
 ```
 
@@ -68,18 +76,6 @@ GOOGLE_WEB_CLIENT_ID=your_web_client_id.apps.googleusercontent.com
 
 Run the app on an emulator or Android device.
 
-## Current Status
-
-Implemented:
-- Auth flow screens and wiring
-- Trending/Search/Details screens with TMDB integration
-- Settings screen (theme options + credits)
-
-In progress / next:
-- Firestore review create/edit/delete flow
-- My Reviews screen backed by Firestore
-- Full account actions in Settings (change password, delete account, etc.)
-
 ## Credits
 
 - **Developer:** Md. Shahriar Hossain
@@ -90,4 +86,3 @@ In progress / next:
 
 This product uses the TMDB API but is not endorsed or certified by TMDB.  
 TMDB: [https://www.themoviedb.org/](https://www.themoviedb.org/)
-

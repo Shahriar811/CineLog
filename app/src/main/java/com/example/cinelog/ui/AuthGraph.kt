@@ -26,11 +26,14 @@ fun androidx.navigation.NavGraphBuilder.authGraph(
                 onPasswordChanged = vm::setPassword,
                 onSignIn = { vm.signInWithEmail(onSuccess = onSignedIn) },
                 onSignUp = { vm.signUpWithEmail(onSuccess = onSignedIn) },
+                onSignUpWithGmail = { gmail, password ->
+                    vm.signUpWithGmail(gmail, password, onSuccess = onSignedIn)
+                },
                 onGoogleSignIn = {
                     val activity = context as? android.app.Activity ?: return@AuthScreen
                     vm.signInWithGoogle(activity, onSuccess = onSignedIn)
                 },
-                onSendPasswordReset = vm::sendPasswordReset,
+                onSendPasswordReset = { email -> vm.sendPasswordReset(customEmail = email) },
             )
         }
     }

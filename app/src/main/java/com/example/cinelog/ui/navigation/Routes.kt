@@ -16,5 +16,8 @@ sealed class Route(val value: String) {
         fun create(listId: String) = "list_detail/$listId"
         const val argListId = "listId"
     }
+    data object UserProfile : Route("user_profile/{userId}") {
+        fun create(userId: String) = "user_profile/$userId"
+        const val argUserId = "userId"
+    }
 }
-

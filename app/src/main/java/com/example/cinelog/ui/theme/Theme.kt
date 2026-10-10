@@ -12,55 +12,57 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import com.example.cinelog.settings.ThemeMode
 
-private val MidnightNeonScheme = darkColorScheme(
-    primary = NeonAccent,
-    onPrimary = Color.White,
-    primaryContainer = MidnightSurfaceMuted,
-    onPrimaryContainer = TextPrimaryDark,
-    secondary = StarRating,
-    onSecondary = MidnightBackground,
-    secondaryContainer = MidnightSurface,
-    onSecondaryContainer = TextPrimaryDark,
-    tertiary = StarRating,
-    onTertiary = MidnightBackground,
-    background = MidnightBackground,
+private val MidnightVelvetScheme = darkColorScheme(
+    primary = CinemaAmber,
+    onPrimary = Color(0xFF1A1200),
+    primaryContainer = ObsidianSurfaceHighlight,
+    onPrimaryContainer = Color(0xFFFFE7A3),
+    secondary = CinemaCyan,
+    onSecondary = Color(0xFF003548),
+    secondaryContainer = ObsidianSurfaceElevated,
+    onSecondaryContainer = Color(0xFFC7EFFF),
+    tertiary = CinemaCrimson,
+    onTertiary = Color.White,
+    background = ObsidianBackground,
     onBackground = TextPrimaryDark,
-    surface = MidnightSurface,
+    surface = ObsidianSurface,
     onSurface = TextPrimaryDark,
-    surfaceVariant = MidnightSurfaceMuted,
+    surfaceVariant = ObsidianSurfaceElevated,
     onSurfaceVariant = TextSecondaryDark,
-    surfaceContainer = MidnightSurface,
-    surfaceContainerHigh = MidnightSurfaceMuted,
-    surfaceContainerLow = MidnightBackground,
+    surfaceContainer = ObsidianSurface,
+    surfaceContainerHigh = ObsidianSurfaceElevated,
+    surfaceContainerHighest = ObsidianSurfaceHighlight,
+    surfaceContainerLow = ObsidianBackground,
     error = Danger,
     onError = Color.White,
-    outline = MidnightSurfaceMuted,
-    outlineVariant = ToggleTrackOff,
+    outline = ObsidianBorder,
+    outlineVariant = Color(0x33FFFFFF),
 )
 
-private val GlassLightScheme = lightColorScheme(
-    primary = GlassAccent,
+private val EditorialStudioScheme = lightColorScheme(
+    primary = Color(0xFFD97706),
     onPrimary = Color.White,
-    primaryContainer = Color(0xFFD4EBFC),
-    onPrimaryContainer = GlassTextPrimary,
-    secondary = GlassAccentTeal,
+    primaryContainer = Color(0xFFFEF3C7),
+    onPrimaryContainer = Color(0xFF78350F),
+    secondary = Color(0xFF0284C7),
     onSecondary = Color.White,
-    secondaryContainer = GlassSurfaceMuted,
-    onSecondaryContainer = GlassTextPrimary,
-    tertiary = StarRating,
-    onTertiary = GlassTextPrimary,
-    background = Color(0xFFF4F8FD),
-    onBackground = GlassTextPrimary,
-    surface = GlassSurface,
-    onSurface = GlassTextPrimary,
-    surfaceVariant = GlassSurfaceMuted,
-    onSurfaceVariant = GlassTextSecondary,
-    surfaceContainer = Color(0xFFF8FAFD),
-    surfaceContainerHigh = Color(0xFFE8EEF5),
+    secondaryContainer = StudioSurfaceElevated,
+    onSecondaryContainer = Color(0xFF0C4A6E),
+    tertiary = Color(0xFFE11D48),
+    onTertiary = Color.White,
+    background = StudioBackground,
+    onBackground = TextPrimaryLight,
+    surface = StudioSurface,
+    onSurface = TextPrimaryLight,
+    surfaceVariant = StudioSurfaceElevated,
+    onSurfaceVariant = TextSecondaryLight,
+    surfaceContainer = StudioSurface,
+    surfaceContainerHigh = StudioSurfaceElevated,
+    surfaceContainerHighest = StudioSurfaceHighlight,
     error = Danger,
     onError = Color.White,
-    outline = Color(0xFFC5D4E3),
-    outlineVariant = Color(0xFFD8E2EC),
+    outline = StudioBorder,
+    outlineVariant = Color(0xFFCBD5E1),
 )
 
 @Composable
@@ -80,8 +82,8 @@ fun CineLogTheme(
             val context = LocalContext.current
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
-        darkTheme -> MidnightNeonScheme
-        else -> GlassLightScheme
+        darkTheme -> MidnightVelvetScheme
+        else -> EditorialStudioScheme
     }
 
     MaterialTheme(
