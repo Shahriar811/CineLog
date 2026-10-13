@@ -47,7 +47,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.cinelog.ui.theme.CinemaAmber
+import com.example.cinelog.ui.theme.CinemaBlue
+import com.example.cinelog.ui.theme.CinemaNavy
 
 @Composable
 fun ProfileCropDialog(
@@ -80,7 +81,7 @@ fun ProfileCropDialog(
                 Icon(
                     imageVector = Icons.Rounded.Crop,
                     contentDescription = null,
-                    tint = CinemaAmber,
+                    tint = CinemaBlue,
                 )
                 Text(
                     text = "Crop & Resize Avatar",
@@ -106,7 +107,7 @@ fun ProfileCropDialog(
                     modifier = Modifier
                         .size(190.dp)
                         .clip(CircleShape)
-                        .border(3.dp, CinemaAmber, CircleShape)
+                        .border(3.dp, CinemaBlue, CircleShape)
                         .background(Color.Black)
                         .pointerInput(Unit) {
                             detectTransformGestures { _, pan, zoom, _ ->
@@ -139,7 +140,7 @@ fun ProfileCropDialog(
                             Icon(
                                 imageVector = Icons.Rounded.ZoomIn,
                                 contentDescription = null,
-                                tint = CinemaAmber,
+                                tint = CinemaBlue,
                                 modifier = Modifier.size(16.dp),
                             )
                             Text(
@@ -151,7 +152,7 @@ fun ProfileCropDialog(
                         Text(
                             text = "${String.format("%.1f", zoomScale)}x",
                             style = MaterialTheme.typography.labelSmall,
-                            color = CinemaAmber,
+                            color = CinemaBlue,
                             fontWeight = FontWeight.Bold,
                         )
                     }
@@ -161,9 +162,9 @@ fun ProfileCropDialog(
                         onValueChange = { zoomScale = it },
                         valueRange = 1f..3.5f,
                         colors = SliderDefaults.colors(
-                            thumbColor = CinemaAmber,
-                            activeTrackColor = CinemaAmber,
-                            inactiveTrackColor = CinemaAmber.copy(alpha = 0.2f),
+                            thumbColor = CinemaBlue,
+                            activeTrackColor = CinemaBlue,
+                            inactiveTrackColor = CinemaBlue.copy(alpha = 0.2f),
                         ),
                     )
                 }
@@ -178,7 +179,7 @@ fun ProfileCropDialog(
                 },
                 enabled = !isProcessing,
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = CinemaAmber,
+                    containerColor = CinemaNavy,
                     contentColor = Color.White,
                 ),
                 shape = RoundedCornerShape(12.dp),

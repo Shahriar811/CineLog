@@ -22,12 +22,15 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import android.widget.Toast
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.CameraAlt
 import androidx.compose.material.icons.rounded.Chat
 import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material.icons.rounded.ContentCopy
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Favorite
+import androidx.compose.material.icons.rounded.Key
 import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material.icons.rounded.Movie
 import androidx.compose.material.icons.rounded.Person
@@ -45,6 +48,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -57,7 +61,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -68,6 +75,7 @@ import com.example.cinelog.ui.components.CineLogGradientBackground
 import com.example.cinelog.ui.components.SocialReviewCard
 import com.example.cinelog.ui.components.UserAvatar
 import com.example.cinelog.ui.theme.CinemaAmber
+import com.example.cinelog.ui.theme.CinemaBlue
 import com.example.cinelog.ui.theme.CinemaNavy
 
 @Composable
@@ -79,6 +87,7 @@ fun UserProfileScreen(
     viewModel: UserProfileViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
+    val clipboardManager = LocalClipboardManager.current
     val state by viewModel.uiState.collectAsState()
 
     var showEditBioDialog by remember { mutableStateOf(false) }
@@ -182,29 +191,131 @@ fun UserProfileScreen(
 
                     Spacer(Modifier.height(4.dp))
 
-                    // Unique Username Badge
+                    // Unique Name Badge with Copy Button
+                    val usernameText = if (profile?.username.isNullOrBlank()) "@critic" else "@${profile?.username}"
                     Row(
                         modifier = Modifier
                             .clip(RoundedCornerShape(12.dp))
-                            .background(CinemaAmber.copy(alpha = 0.16f))
-                            .border(1.dp, CinemaAmber.copy(alpha = 0.4f), RoundedCornerShape(12.dp))
-                            .padding(horizontal = 10.dp, vertical = 4.dp),
+                            .background(CinemaBlue.copy(alpha = 0.16f))
+                            .border(1.dp, CinemaBlue.copy(alpha = 0.4f), RoundedCornerShape(12.dp))
+                            .clickable {
+                                if (!profile?.username.isNullOrBlank()) {
+                                    clipboardManager.setText(AnnotatedString(usernameText))
+                                    Toast.makeText(context, "Unique name $usernameText copied to clipboard", Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                            .padding(start = 12.dp, end = 6.dp, top = 4.dp, bottom = 4.dp),
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
                     ) {
                         Icon(
                             imageVector = Icons.Rounded.Lock,
-                            contentDescription = "Unique ID",
-                            tint = CinemaAmber,
+                            contentDescription = "Unique Name",
+                            tint = CinemaBlue,
                             modifier = Modifier.size(13.dp),
                         )
                         Text(
-                            text = if (profile?.username.isNullOrBlank()) "@critic" else "@${profile?.username}",
+                            text = usernameText,
                             style = MaterialTheme.typography.labelMedium.copy(
                                 fontWeight = FontWeight.Bold,
-                                color = CinemaAmber,
+                                color = CinemaBlue,
                             ),
                         )
+                        IconButton(
+                            onClick = {
+                                if (!profile?.username.isNullOrBlank()) {
+                                    clipboardManager.setText(AnnotatedString(usernameText))
+                                    Toast.makeText(context, "Unique name $usernameText copied to clipboard", Toast.LENGTH_SHORT).show()
+                                }
+                            },
+                            modifier = Modifier.size(24.dp),
+                        ) {
+                            Icon(
+                                imageVector = Icons.Rounded.ContentCopy,
+                                contentDescription = "Copy Unique Name",
+                                tint = CinemaBlue.copy(alpha = 0.85f),
+                                modifier = Modifier.size(13.dp),
+                            )
+                        }
+                    }
+
+                    // Private 10-character Unique ID (ONLY visible to the account owner)
+                    if (state.isCurrentUser && !profile?.uniqueId.isNullOrBlank()) {
+                        Spacer(Modifier.height(8.dp))
+                        Surface(
+                            shape = RoundedCornerShape(14.dp),
+                            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, CinemaBlue.copy(alpha = 0.25f)),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 20.dp),
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .clickable {
+                                        clipboardManager.setText(AnnotatedString(profile.uniqueId))
+                                        Toast.makeText(context, "Unique ID ${profile.uniqueId} copied to clipboard", Toast.LENGTH_SHORT).show()
+                                    }
+                                    .padding(horizontal = 12.dp, vertical = 8.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(32.dp)
+                                        .clip(CircleShape)
+                                        .background(CinemaNavy.copy(alpha = 0.25f)),
+                                    contentAlignment = Alignment.Center,
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Rounded.Key,
+                                        contentDescription = "Unique ID",
+                                        tint = CinemaBlue,
+                                        modifier = Modifier.size(16.dp),
+                                    )
+                                }
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                    ) {
+                                        Text(
+                                            text = "CineLog ID:",
+                                            style = MaterialTheme.typography.labelSmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        )
+                                        Text(
+                                            text = profile.uniqueId,
+                                            style = MaterialTheme.typography.labelMedium.copy(
+                                                fontWeight = FontWeight.ExtraBold,
+                                                fontFamily = FontFamily.Monospace,
+                                                letterSpacing = 1.sp,
+                                            ),
+                                            color = MaterialTheme.colorScheme.onSurface,
+                                        )
+                                    }
+                                    Text(
+                                        text = "Private to you • Others connect using this ID or name",
+                                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                                    )
+                                }
+                                IconButton(
+                                    onClick = {
+                                        clipboardManager.setText(AnnotatedString(profile.uniqueId))
+                                        Toast.makeText(context, "Unique ID ${profile.uniqueId} copied to clipboard", Toast.LENGTH_SHORT).show()
+                                    },
+                                    modifier = Modifier.size(28.dp),
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Rounded.ContentCopy,
+                                        contentDescription = "Copy ID",
+                                        tint = CinemaBlue,
+                                        modifier = Modifier.size(15.dp),
+                                    )
+                                }
+                            }
+                        }
                     }
 
                     // Bio

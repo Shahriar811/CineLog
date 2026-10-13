@@ -225,25 +225,45 @@ class SocialRepositoryImpl @Inject constructor(
     override fun searchUsers(query: String): Flow<List<UserProfile>> = callbackFlow {
         val db = requireFirestore()
         val uid = firebaseAuth?.currentUser?.uid
-        val cleanQuery = query.trim().lowercase()
+        val raw = query.trim()
+        val cleanUsernameQuery = raw.lowercase().removePrefix("@")
 
-        if (cleanQuery.isBlank()) {
+        if (cleanUsernameQuery.isBlank() && raw.isBlank()) {
             trySend(emptyList())
             awaitClose { }
             return@callbackFlow
         }
 
-        // Search by username prefix (Firestore range query trick)
-        val endStr = cleanQuery + "\uf8ff"
+        // Query by username prefix
+        val endStr = cleanUsernameQuery + "\uf8ff"
         val listener = db.collection("users")
-            .whereGreaterThanOrEqualTo("username", cleanQuery)
+            .whereGreaterThanOrEqualTo("username", cleanUsernameQuery)
             .whereLessThanOrEqualTo("username", endStr)
             .limit(20)
             .addSnapshotListener { snapshot, _ ->
-                val users = snapshot?.documents.orEmpty()
+                val usersFromUsername = snapshot?.documents.orEmpty()
                     .mapNotNull { mapToUserProfile(it) }
-                    .filter { it.userId != uid }
-                trySend(users)
+                    .toMutableList()
+
+                // Also check if raw query matches 10-char Unique ID
+                if (raw.length == 10) {
+                    db.collection("users")
+                        .whereEqualTo("uniqueId", raw)
+                        .limit(5)
+                        .get()
+                        .addOnSuccessListener { idSnapshot ->
+                            val usersFromId = idSnapshot.documents.mapNotNull { mapToUserProfile(it) }
+                            val combined = (usersFromId + usersFromUsername)
+                                .distinctBy { it.userId }
+                                .filter { it.userId != uid }
+                            trySend(combined)
+                        }
+                        .addOnFailureListener {
+                            trySend(usersFromUsername.filter { it.userId != uid })
+                        }
+                } else {
+                    trySend(usersFromUsername.filter { it.userId != uid })
+                }
             }
         awaitClose { listener.remove() }
     }
@@ -257,6 +277,7 @@ class SocialRepositoryImpl @Inject constructor(
         return UserProfile(
             userId = userId,
             username = username,
+            uniqueId = doc.getString("uniqueId").orEmpty(),
             displayName = doc.getString("displayName").orEmpty(),
             photoBase64 = doc.getString("photoBase64"),
             bio = doc.getString("bio").orEmpty(),

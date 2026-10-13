@@ -96,20 +96,25 @@ fun ProfileSetupDialog(
             usernameError = null
             return@LaunchedEffect
         }
-        if (!clean.matches(Regex("^[a-z0-9_]{3,20}$"))) {
+        if (clean.length > 20) {
             isUsernameAvailable = false
-            usernameError = "3-20 characters using letters, numbers & _"
+            usernameError = "Unique name cannot exceed 20 characters (${clean.length}/20)."
+            return@LaunchedEffect
+        }
+        if (!clean.matches(Regex("^[a-z0-9_]{1,20}$"))) {
+            isUsernameAvailable = false
+            usernameError = "Use 1-20 characters with english letters, numbers & _ only"
             return@LaunchedEffect
         }
 
         isCheckingAvailability = true
         usernameError = null
-        delay(400)
+        delay(350)
         val available = profileRepository.isUsernameAvailable(clean)
         isCheckingAvailability = false
         isUsernameAvailable = available
         if (!available) {
-            usernameError = "This username is already taken."
+            usernameError = "The unique name @$clean is already taken."
         }
     }
 
@@ -137,7 +142,7 @@ fun ProfileSetupDialog(
         },
         title = {
             Text(
-                text = "Claim Your CineLog Identity",
+                text = "Claim Your Unique Name",
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.ExtraBold,
             )
@@ -148,7 +153,7 @@ fun ProfileSetupDialog(
                 verticalArrangement = Arrangement.spacedBy(14.dp),
             ) {
                 Text(
-                    text = "Welcome to CineLog! Choose your unique username. It is permanent and cannot be changed once claimed.",
+                    text = "Welcome to CineLog! Choose your unique name (up to 20 characters). A private 10-character CineLog ID will be generated with it so you and your friends can connect.",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -201,14 +206,15 @@ fun ProfileSetupDialog(
                     }
                 }
 
-                // Unique Username Field
+                // Unique Name Field
                 OutlinedTextField(
                     value = usernameInput,
                     onValueChange = {
-                        usernameInput = it.lowercase().trim().removePrefix("@")
+                        val filtered = it.lowercase().trim().removePrefix("@").take(20)
+                        usernameInput = filtered
                     },
-                    label = { Text("Unique Username") },
-                    placeholder = { Text("cine_critic") },
+                    label = { Text("Unique Name (${usernameInput.length}/20)") },
+                    placeholder = { Text("film_critic") },
                     prefix = { Text("@", color = CinemaAmber, fontWeight = FontWeight.Bold) },
                     singleLine = true,
                     isError = isUsernameAvailable == false,
@@ -239,9 +245,9 @@ fun ProfileSetupDialog(
                         if (usernameError != null) {
                             Text(usernameError!!, color = MaterialTheme.colorScheme.error)
                         } else if (isUsernameAvailable == true) {
-                            Text("Username is available!", color = Color(0xFF4CAF50))
+                            Text("Unique name is available!", color = Color(0xFF4CAF50))
                         } else {
-                            Text("Permanent handle. 3-20 letters/numbers.")
+                            Text("Permanent name (1-20 characters). Generates your 10-char Unique ID.")
                         }
                     },
                     shape = RoundedCornerShape(14.dp),
@@ -318,7 +324,7 @@ fun ProfileSetupDialog(
                         color = Color.White,
                     )
                 } else {
-                    Text("Claim Identity & Enter CineLog", fontWeight = FontWeight.Bold)
+                    Text("Claim Unique Name & Enter CineLog", fontWeight = FontWeight.Bold)
                 }
             }
         },

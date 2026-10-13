@@ -327,7 +327,7 @@ private fun CinephileSearchBar(
         onValueChange = onQueryChanged,
         placeholder = {
             Text(
-                text = "Search cinephiles by @username or name...",
+                text = "Connect by @unique_name or 10-char Unique ID...",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
             )

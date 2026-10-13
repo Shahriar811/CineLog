@@ -33,6 +33,14 @@ service cloud.firestore {
       allow update, delete: if false;
     }
 
+    // Unique 10-char IDs index: public to read for connecting/searching, creation allowed, immutable
+    match /uniqueIds/{uniqueId} {
+      allow read: if true;
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if false;
+    }
+
+
     // Reviews & Social Interactions
     match /reviews/{reviewId} {
       allow read: if true;

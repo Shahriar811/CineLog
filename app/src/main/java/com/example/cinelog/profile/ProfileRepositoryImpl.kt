@@ -50,9 +50,23 @@ class ProfileRepositoryImpl @Inject constructor(
                     trySend(null)
                     return@addSnapshotListener
                 }
+                var uniqueId = snapshot.getString("uniqueId").orEmpty()
+                if (uniqueId.isBlank()) {
+                    uniqueId = UniqueIdGenerator.generate()
+                    db.collection("users").document(uid).update("uniqueId", uniqueId)
+                    db.collection("uniqueIds").document(uniqueId).set(
+                        mapOf(
+                            "userId" to uid,
+                            "username" to snapshot.getString("username").orEmpty(),
+                            "createdAtMillis" to System.currentTimeMillis(),
+                        ),
+                        SetOptions.merge(),
+                    )
+                }
                 val profile = UserProfile(
                     userId = snapshot.getString("userId") ?: uid,
                     username = snapshot.getString("username").orEmpty(),
+                    uniqueId = uniqueId,
                     displayName = snapshot.getString("displayName") ?: (auth.currentUser?.displayName.orEmpty()),
                     photoBase64 = snapshot.getString("photoBase64"),
                     bio = snapshot.getString("bio").orEmpty(),
@@ -78,6 +92,7 @@ class ProfileRepositoryImpl @Inject constructor(
                 val profile = UserProfile(
                     userId = snapshot.getString("userId") ?: userId,
                     username = snapshot.getString("username").orEmpty(),
+                    uniqueId = snapshot.getString("uniqueId").orEmpty(),
                     displayName = snapshot.getString("displayName").orEmpty(),
                     photoBase64 = snapshot.getString("photoBase64"),
                     bio = snapshot.getString("bio").orEmpty(),
@@ -115,7 +130,7 @@ class ProfileRepositoryImpl @Inject constructor(
 
     override suspend fun isUsernameAvailable(username: String): Boolean {
         val clean = username.trim().lowercase().removePrefix("@")
-        if (!clean.matches(Regex("^[a-z0-9_]{3,20}$"))) return false
+        if (!clean.matches(Regex("^[a-z0-9_]{1,20}$"))) return false
         val db = requireFirestore()
         val doc = db.collection("usernames").document(clean).get().await()
         if (!doc.exists()) return true
@@ -131,14 +146,16 @@ class ProfileRepositoryImpl @Inject constructor(
     ): Result<UserProfile> {
         val uid = requireUserId()
         val cleanUsername = username.trim().lowercase().removePrefix("@")
-        if (!cleanUsername.matches(Regex("^[a-z0-9_]{3,20}$"))) {
+        if (!cleanUsername.matches(Regex("^[a-z0-9_]{1,20}$"))) {
             return Result.failure(
-                IllegalArgumentException("Username must be 3-20 characters using lowercase letters, numbers, and underscores only.")
+                IllegalArgumentException("Unique name must be between 1 and 20 characters using letters, numbers, and underscores only.")
             )
         }
 
         val db = requireFirestore()
+        val generatedUniqueId = UniqueIdGenerator.generate()
         val usernameRef = db.collection("usernames").document(cleanUsername)
+        val uniqueIdRef = db.collection("uniqueIds").document(generatedUniqueId)
         val userRef = db.collection("users").document(uid)
 
         return runCatching {
@@ -146,19 +163,36 @@ class ProfileRepositoryImpl @Inject constructor(
                 val userDoc = tx.get(userRef)
                 val existingUsername = userDoc.getString("username")
                 if (!existingUsername.isNullOrBlank()) {
-                    throw IllegalStateException("Your unique username is already permanently set to @$existingUsername and cannot be changed.")
+                    throw IllegalStateException("Your unique name is already permanently set to @$existingUsername and cannot be changed.")
                 }
 
                 val usernameDoc = tx.get(usernameRef)
                 if (usernameDoc.exists() && usernameDoc.getString("userId") != uid) {
-                    throw IllegalStateException("The username @$cleanUsername is already taken by another user. Please choose another.")
+                    throw IllegalStateException("The unique name @$cleanUsername is already taken by another user. Please choose another.")
                 }
 
                 val now = System.currentTimeMillis()
-                tx.set(usernameRef, mapOf("userId" to uid, "createdAtMillis" to now))
+                tx.set(
+                    usernameRef,
+                    mapOf(
+                        "userId" to uid,
+                        "uniqueId" to generatedUniqueId,
+                        "createdAtMillis" to now,
+                    )
+                )
+                tx.set(
+                    uniqueIdRef,
+                    mapOf(
+                        "userId" to uid,
+                        "username" to cleanUsername,
+                        "createdAtMillis" to now,
+                    )
+                )
+
                 val profileMap = mutableMapOf<String, Any>(
                     "userId" to uid,
                     "username" to cleanUsername,
+                    "uniqueId" to generatedUniqueId,
                     "displayName" to displayName.trim().ifBlank { cleanUsername },
                     "bio" to bio.trim(),
                     "createdAtMillis" to now,
@@ -172,6 +206,7 @@ class ProfileRepositoryImpl @Inject constructor(
             UserProfile(
                 userId = uid,
                 username = cleanUsername,
+                uniqueId = generatedUniqueId,
                 displayName = displayName.trim().ifBlank { cleanUsername },
                 photoBase64 = photoBase64,
                 bio = bio.trim(),
