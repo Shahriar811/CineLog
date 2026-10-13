@@ -668,7 +668,7 @@ fun SettingsScreen(
                     },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = CinemaAmber,
-                        contentColor = Color(0xFF1E1400),
+                        contentColor = Color.White,
                     ),
                     shape = RoundedCornerShape(12.dp),
                 ) {

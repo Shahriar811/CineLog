@@ -126,7 +126,7 @@ fun MovieDetailsScreen(
                             showCreateListDialog = false
                         }
                     },
-                    colors = ButtonDefaults.buttonColors(containerColor = CinemaAmber, contentColor = Color(0xFF1E1400)),
+                    colors = ButtonDefaults.buttonColors(containerColor = CinemaAmber, contentColor = Color.White),
                     shape = RoundedCornerShape(12.dp),
                 ) { Text("Create & Add", fontWeight = FontWeight.Bold) }
             },
@@ -594,13 +594,13 @@ fun MovieDetailsScreen(
                                         .clip(RoundedCornerShape(16.dp))
                                         .background(
                                             Brush.horizontalGradient(
-                                                colors = listOf(Color(0xFFFFC72C), Color(0xFFFF9500)),
+                                                colors = listOf(Color(0xFF1D4ED8), Color(0xFF3B82F6)),
                                             ),
                                         )
                                         .clickable(onClick = viewModel::saveReview),
                                     contentAlignment = Alignment.Center,
                                 ) {
-                                    Text("Post Review", fontWeight = FontWeight.ExtraBold, color = Color(0xFF1A1200))
+                                    Text("Post Review", fontWeight = FontWeight.ExtraBold, color = Color.White)
                                 }
 
                                 state.saveMessage?.let { msg ->

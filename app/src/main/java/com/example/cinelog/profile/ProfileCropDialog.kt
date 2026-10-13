@@ -179,14 +179,14 @@ fun ProfileCropDialog(
                 enabled = !isProcessing,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = CinemaAmber,
-                    contentColor = Color(0xFF1E1400),
+                    contentColor = Color.White,
                 ),
                 shape = RoundedCornerShape(12.dp),
             ) {
                 if (isProcessing) {
                     CircularProgressIndicator(
                         modifier = Modifier.size(18.dp),
-                        color = Color(0xFF1E1400),
+                        color = Color.White,
                         strokeWidth = 2.dp,
                     )
                 } else {

@@ -119,7 +119,7 @@ fun ListsScreen(
                     },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = CinemaAmber,
-                        contentColor = Color(0xFF1E1400),
+                        contentColor = Color.White,
                     ),
                     shape = RoundedCornerShape(12.dp),
                 ) {
@@ -170,7 +170,7 @@ fun ListsScreen(
                     },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = CinemaAmber,
-                        contentColor = Color(0xFF1E1400),
+                        contentColor = Color.White,
                     ),
                     shape = RoundedCornerShape(12.dp),
                 ) {
@@ -234,7 +234,7 @@ fun ListsScreen(
             FloatingActionButton(
                 onClick = { showCreateDialog = true },
                 containerColor = CinemaAmber,
-                contentColor = Color(0xFF1E1400),
+                contentColor = Color.White,
                 shape = RoundedCornerShape(20.dp),
                 modifier = Modifier
                     .padding(bottom = 16.dp)
@@ -332,7 +332,7 @@ fun ListsScreen(
                         onClick = { showCreateDialog = true },
                         colors = ButtonDefaults.buttonColors(
                             containerColor = CinemaAmber,
-                            contentColor = Color(0xFF1E1400),
+                            contentColor = Color.White,
                         ),
                         shape = RoundedCornerShape(16.dp),
                     ) {
@@ -409,7 +409,7 @@ private fun ListRowCard(
                     .clip(RoundedCornerShape(topEnd = 4.dp, bottomEnd = 4.dp))
                     .background(
                         androidx.compose.ui.graphics.Brush.verticalGradient(
-                            listOf(Color(0xFFFFC72C), Color(0xFFFF9500)),
+                            listOf(Color(0xFF1D4ED8), Color(0xFF3B82F6)),
                         ),
                     ),
             )

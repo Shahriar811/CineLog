@@ -121,7 +121,7 @@ fun MyReviewsScreen(
                         .background(
                             if (isCommunity) {
                                 Brush.horizontalGradient(
-                                    listOf(Color(0xFFFFC72C), Color(0xFFFF9500)),
+                                    listOf(Color(0xFF1D4ED8), Color(0xFF3B82F6)),
                                 )
                             } else {
                                 Brush.linearGradient(listOf(Color.Transparent, Color.Transparent))
@@ -142,14 +142,14 @@ fun MyReviewsScreen(
                         Icon(
                             imageVector = Icons.Rounded.Public,
                             contentDescription = null,
-                            tint = if (isCommunity) Color(0xFF160E00) else MaterialTheme.colorScheme.onSurfaceVariant,
+                            tint = if (isCommunity) Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.size(17.dp),
                         )
                         Text(
                             text = "Community Feed",
                             style = MaterialTheme.typography.labelMedium.copy(
                                 fontWeight = FontWeight.Bold,
-                                color = if (isCommunity) Color(0xFF160E00) else MaterialTheme.colorScheme.onSurfaceVariant,
+                                color = if (isCommunity) Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
                             ),
                         )
                     }
@@ -164,7 +164,7 @@ fun MyReviewsScreen(
                         .background(
                             if (isMyReviews) {
                                 Brush.horizontalGradient(
-                                    listOf(Color(0xFFFFC72C), Color(0xFFFF9500)),
+                                    listOf(Color(0xFF1D4ED8), Color(0xFF3B82F6)),
                                 )
                             } else {
                                 Brush.linearGradient(listOf(Color.Transparent, Color.Transparent))
@@ -185,14 +185,14 @@ fun MyReviewsScreen(
                         Icon(
                             imageVector = Icons.Rounded.Person,
                             contentDescription = null,
-                            tint = if (isMyReviews) Color(0xFF160E00) else MaterialTheme.colorScheme.onSurfaceVariant,
+                            tint = if (isMyReviews) Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.size(17.dp),
                         )
                         Text(
                             text = "My Reviews",
                             style = MaterialTheme.typography.labelMedium.copy(
                                 fontWeight = FontWeight.Bold,
-                                color = if (isMyReviews) Color(0xFF160E00) else MaterialTheme.colorScheme.onSurfaceVariant,
+                                color = if (isMyReviews) Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
                             ),
                         )
                     }

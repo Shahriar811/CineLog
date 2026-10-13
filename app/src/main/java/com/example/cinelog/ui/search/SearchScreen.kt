@@ -157,7 +157,7 @@ fun SearchScreen(
                         .background(
                             if (!state.isLoading && state.query.isNotBlank()) {
                                 Brush.horizontalGradient(
-                                    colors = listOf(Color(0xFFFFC72C), Color(0xFFFF9500)),
+                                    colors = listOf(Color(0xFF1D4ED8), Color(0xFF3B82F6)),
                                 )
                             } else {
                                 Brush.linearGradient(
@@ -183,7 +183,7 @@ fun SearchScreen(
                         style = MaterialTheme.typography.labelLarge.copy(
                             fontWeight = FontWeight.ExtraBold,
                             color = if (!state.isLoading && state.query.isNotBlank()) {
-                                Color(0xFF160E00)
+                                Color.White
                             } else {
                                 MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
                             },

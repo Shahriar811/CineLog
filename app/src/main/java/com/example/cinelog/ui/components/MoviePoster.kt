@@ -50,7 +50,7 @@ fun MoviePoster(
                 elevation = elevation,
                 shape = shape,
                 clip = false,
-                spotColor = Color(0x33FFB800),
+                spotColor = Color(0x332563EB),
                 ambientColor = Color(0x66000000),
             )
             .clip(shape)

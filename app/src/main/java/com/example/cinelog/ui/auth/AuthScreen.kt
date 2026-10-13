@@ -120,13 +120,13 @@ fun AuthScreen(
                         .shadow(16.dp, CircleShape)
                         .clip(CircleShape)
                         .background(CinemaAmber)
-                        .border(2.dp, Color(0xFFFFD566), CircleShape),
+                        .border(2.dp, Color(0xFF60A5FA), CircleShape),
                     contentAlignment = Alignment.Center,
                 ) {
                     Icon(
                         imageVector = Icons.Rounded.MovieFilter,
                         contentDescription = "CineLog Emblem",
-                        tint = Color(0xFF1E1400),
+                        tint = Color.White,
                         modifier = Modifier.size(38.dp),
                     )
                 }
@@ -169,7 +169,7 @@ fun AuthScreen(
                             .background(
                                 if (!isSignUpMode) {
                                     Brush.horizontalGradient(
-                                        listOf(Color(0xFFFFC72C), Color(0xFFFF9500)),
+                                        listOf(Color(0xFF1D4ED8), Color(0xFF3B82F6)),
                                     )
                                 } else {
                                     Brush.linearGradient(listOf(Color.Transparent, Color.Transparent))
@@ -187,7 +187,7 @@ fun AuthScreen(
                             text = "Sign In",
                             style = MaterialTheme.typography.labelLarge.copy(
                                 fontWeight = FontWeight.ExtraBold,
-                                color = if (!isSignUpMode) Color(0xFF160E00) else MaterialTheme.colorScheme.onSurfaceVariant,
+                                color = if (!isSignUpMode) Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
                             ),
                         )
                     }
@@ -199,7 +199,7 @@ fun AuthScreen(
                             .background(
                                 if (isSignUpMode) {
                                     Brush.horizontalGradient(
-                                        listOf(Color(0xFFFFC72C), Color(0xFFFF9500)),
+                                        listOf(Color(0xFF1D4ED8), Color(0xFF3B82F6)),
                                     )
                                 } else {
                                     Brush.linearGradient(listOf(Color.Transparent, Color.Transparent))
@@ -217,7 +217,7 @@ fun AuthScreen(
                             text = "Create Account",
                             style = MaterialTheme.typography.labelLarge.copy(
                                 fontWeight = FontWeight.ExtraBold,
-                                color = if (isSignUpMode) Color(0xFF160E00) else MaterialTheme.colorScheme.onSurfaceVariant,
+                                color = if (isSignUpMode) Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
                             ),
                         )
                     }
@@ -394,7 +394,7 @@ fun AuthScreen(
                                 .background(
                                     if (!uiState.isLoading) {
                                         Brush.horizontalGradient(
-                                            listOf(Color(0xFFFFC72C), Color(0xFFFF9500)),
+                                            listOf(Color(0xFF1D4ED8), Color(0xFF3B82F6)),
                                         )
                                     } else {
                                         Brush.linearGradient(
@@ -415,14 +415,14 @@ fun AuthScreen(
                                 CircularProgressIndicator(
                                     modifier = Modifier.size(20.dp),
                                     strokeWidth = 2.5.dp,
-                                    color = Color(0xFF1E1400),
+                                    color = Color.White,
                                 )
                             } else {
                                 Text(
                                     text = if (isSignUpMode) "Create Account with Gmail / Email" else "Sign In",
                                     fontWeight = FontWeight.ExtraBold,
                                     fontSize = 15.sp,
-                                    color = Color(0xFF160E00),
+                                    color = Color.White,
                                 )
                             }
                         }
@@ -673,7 +673,7 @@ fun AuthScreen(
                         },
                         colors = ButtonDefaults.buttonColors(
                             containerColor = CinemaAmber,
-                            contentColor = Color(0xFF1E1400),
+                            contentColor = Color.White,
                         ),
                         shape = RoundedCornerShape(12.dp),
                     ) {
@@ -759,7 +759,7 @@ fun AuthScreen(
                         },
                         colors = ButtonDefaults.buttonColors(
                             containerColor = CinemaAmber,
-                            contentColor = Color(0xFF1E1400),
+                            contentColor = Color.White,
                         ),
                         shape = RoundedCornerShape(12.dp),
                     ) {

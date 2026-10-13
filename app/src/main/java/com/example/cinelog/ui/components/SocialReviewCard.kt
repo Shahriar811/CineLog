@@ -462,7 +462,7 @@ fun SocialReviewCard(
                             Icon(
                                 imageVector = Icons.Rounded.Send,
                                 contentDescription = "Send",
-                                tint = Color(0xFF1E1400),
+                                tint = Color.White,
                                 modifier = Modifier.size(18.dp),
                             )
                         }

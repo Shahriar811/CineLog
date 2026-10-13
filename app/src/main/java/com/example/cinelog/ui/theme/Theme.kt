@@ -13,10 +13,10 @@ import androidx.compose.ui.platform.LocalContext
 import com.example.cinelog.settings.ThemeMode
 
 private val MidnightVelvetScheme = darkColorScheme(
-    primary = CinemaAmber,
-    onPrimary = Color(0xFF1A1200),
+    primary = CinemaBlue,
+    onPrimary = Color.White,
     primaryContainer = ObsidianSurfaceHighlight,
-    onPrimaryContainer = Color(0xFFFFE7A3),
+    onPrimaryContainer = Color(0xFFDBEAFE),
     secondary = CinemaCyan,
     onSecondary = Color(0xFF003548),
     secondaryContainer = ObsidianSurfaceElevated,
@@ -40,10 +40,10 @@ private val MidnightVelvetScheme = darkColorScheme(
 )
 
 private val EditorialStudioScheme = lightColorScheme(
-    primary = Color(0xFFD97706),
+    primary = Color(0xFF1D4ED8),
     onPrimary = Color.White,
-    primaryContainer = Color(0xFFFEF3C7),
-    onPrimaryContainer = Color(0xFF78350F),
+    primaryContainer = Color(0xFFDBEAFE),
+    onPrimaryContainer = Color(0xFF1E3A8A),
     secondary = Color(0xFF0284C7),
     onSecondary = Color.White,
     secondaryContainer = StudioSurfaceElevated,

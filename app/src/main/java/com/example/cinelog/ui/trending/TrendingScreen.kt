@@ -248,7 +248,7 @@ private fun CategoryPill(
             .background(
                 if (isSelected) {
                     Brush.horizontalGradient(
-                        colors = listOf(Color(0xFFFFC72C), Color(0xFFFF9500)),
+                        colors = listOf(Color(0xFF1D4ED8), Color(0xFF3B82F6)),
                     )
                 } else {
                     Brush.linearGradient(
@@ -278,7 +278,7 @@ private fun CategoryPill(
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                tint = if (isSelected) Color(0xFF160E00) else MaterialTheme.colorScheme.onSurfaceVariant,
+                tint = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(15.dp),
             )
             Text(
@@ -287,7 +287,7 @@ private fun CategoryPill(
                     fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
                     fontSize = 13.sp,
                 ),
-                color = if (isSelected) Color(0xFF160E00) else MaterialTheme.colorScheme.onSurface,
+                color = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurface,
             )
         }
     }
@@ -363,7 +363,7 @@ private fun FeaturedSpotlightCard(
                             .clip(RoundedCornerShape(8.dp))
                             .background(
                                 Brush.horizontalGradient(
-                                    colors = listOf(Color(0xFFFFC72C), Color(0xFFFF9500)),
+                                    colors = listOf(Color(0xFF1D4ED8), Color(0xFF3B82F6)),
                                 ),
                             )
                             .padding(horizontal = 9.dp, vertical = 4.dp),
@@ -372,7 +372,7 @@ private fun FeaturedSpotlightCard(
                             text = "✦ SPOTLIGHT PREMIERE",
                             style = MaterialTheme.typography.labelSmall.copy(
                                 fontWeight = FontWeight.ExtraBold,
-                                color = Color(0xFF1A1200),
+                                color = Color.White,
                                 letterSpacing = 0.8.sp,
                             ),
                         )
@@ -551,7 +551,7 @@ private fun TrendingErrorState(
             onClick = onRetry,
             colors = ButtonDefaults.buttonColors(
                 containerColor = CinemaAmber,
-                contentColor = Color(0xFF1E1400),
+                contentColor = Color.White,
             ),
             shape = RoundedCornerShape(16.dp),
         ) {

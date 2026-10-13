@@ -411,13 +411,13 @@ private fun ReviewComposerPrompt(
                     Icon(
                         imageVector = Icons.Rounded.Add,
                         contentDescription = null,
-                        tint = Color(0xFF1E1400),
+                        tint = Color.White,
                         modifier = Modifier.size(14.dp),
                     )
                     Text(
                         text = "Rate",
                         style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
-                        color = Color(0xFF1E1400),
+                        color = Color.White,
                     )
                 }
             }
@@ -663,7 +663,7 @@ private fun MiniCinephileCard(
                 onClick = onFollowClick,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = if (isFollowing) MaterialTheme.colorScheme.surfaceVariant else CinemaAmber,
-                    contentColor = if (isFollowing) MaterialTheme.colorScheme.onSurface else Color(0xFF1E1400),
+                    contentColor = if (isFollowing) MaterialTheme.colorScheme.onSurface else Color.White,
                 ),
                 shape = RoundedCornerShape(12.dp),
                 contentPadding = PaddingValues(horizontal = 10.dp, vertical = 2.dp),
@@ -870,7 +870,7 @@ private fun CinephileListItem(
                 onClick = onFollowClick,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = if (isFollowing) MaterialTheme.colorScheme.surfaceVariant else CinemaAmber,
-                    contentColor = if (isFollowing) MaterialTheme.colorScheme.onSurface else Color(0xFF1E1400),
+                    contentColor = if (isFollowing) MaterialTheme.colorScheme.onSurface else Color.White,
                 ),
                 shape = RoundedCornerShape(14.dp),
                 contentPadding = PaddingValues(horizontal = 14.dp, vertical = 6.dp),
@@ -942,7 +942,7 @@ private fun EmptyFollowingState(
                 onClick = onDiscoverClick,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = CinemaAmber,
-                    contentColor = Color(0xFF1E1400),
+                    contentColor = Color.White,
                 ),
                 shape = RoundedCornerShape(16.dp),
             ) {
@@ -1010,7 +1010,7 @@ private fun EmptyCommunityState(
                 onClick = onExploreMovies,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = CinemaAmber,
-                    contentColor = Color(0xFF1E1400),
+                    contentColor = Color.White,
                 ),
                 shape = RoundedCornerShape(16.dp),
             ) {

@@ -181,7 +181,7 @@ fun ProfileSetupDialog(
                             Icon(
                                 imageVector = Icons.Rounded.AddAPhoto,
                                 contentDescription = "Add photo",
-                                tint = Color(0xFF1E1400),
+                                tint = Color.White,
                                 modifier = Modifier.size(13.dp),
                             )
                         }
@@ -306,7 +306,7 @@ fun ProfileSetupDialog(
                 enabled = isUsernameAvailable == true && !isSubmitting,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = CinemaAmber,
-                    contentColor = Color(0xFF1E1400),
+                    contentColor = Color.White,
                 ),
                 shape = RoundedCornerShape(12.dp),
                 modifier = Modifier.fillMaxWidth(),
@@ -315,7 +315,7 @@ fun ProfileSetupDialog(
                     CircularProgressIndicator(
                         modifier = Modifier.size(20.dp),
                         strokeWidth = 2.dp,
-                        color = Color(0xFF1E1400),
+                        color = Color.White,
                     )
                 } else {
                     Text("Claim Identity & Enter CineLog", fontWeight = FontWeight.Bold)

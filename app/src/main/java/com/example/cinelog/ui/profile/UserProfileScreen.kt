@@ -162,7 +162,7 @@ fun UserProfileScreen(
                                 Icon(
                                     imageVector = Icons.Rounded.CameraAlt,
                                     contentDescription = "Change photo",
-                                    tint = Color(0xFF1E1400),
+                                    tint = Color.White,
                                     modifier = Modifier.size(18.dp),
                                 )
                             }
@@ -265,7 +265,7 @@ fun UserProfileScreen(
                                 contentColor = if (state.isFollowing) {
                                     MaterialTheme.colorScheme.onSurface
                                 } else {
-                                    Color(0xFF1E1400)
+                                    Color.White
                                 },
                             ),
                             shape = RoundedCornerShape(20.dp),
@@ -403,7 +403,7 @@ fun UserProfileScreen(
                     },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = CinemaAmber,
-                        contentColor = Color(0xFF1E1400),
+                        contentColor = Color.White,
                     ),
                 ) {
                     Text("Save", fontWeight = FontWeight.Bold)

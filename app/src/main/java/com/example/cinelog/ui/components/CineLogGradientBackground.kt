@@ -22,8 +22,8 @@ fun CineLogGradientBackground(
     val backgroundBrush = if (isDark) {
         Brush.radialGradient(
             colors = listOf(
-                Color(0x22FFB800), // Subtle warm cinema glow
-                Color(0x186366F1), // Ambient indigo
+                Color(0x282563EB), // Ambient matte navy / royal blue glow
+                Color(0x181E3A8A), // Deep navy accent
                 bg,
             ),
             center = Offset(800f, 100f),
