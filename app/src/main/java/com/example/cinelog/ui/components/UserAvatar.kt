@@ -24,7 +24,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.cinelog.ui.theme.CinemaAmber
+import com.example.cinelog.ui.theme.CinemaBlue
+import com.example.cinelog.ui.theme.CinemaNavy
 
 @Composable
 fun UserAvatar(
@@ -62,7 +63,7 @@ fun UserAvatar(
         modifier = modifier
             .size(size)
             .clip(CircleShape)
-            .border(borderWidth, CinemaAmber.copy(alpha = 0.8f), CircleShape)
+            .border(borderWidth, CinemaBlue.copy(alpha = 0.8f), CircleShape)
             .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier),
         contentAlignment = Alignment.Center,
     ) {
@@ -82,8 +83,8 @@ fun UserAvatar(
                     .background(
                         Brush.linearGradient(
                             listOf(
-                                Color(0xFF3B2605),
-                                CinemaAmber.copy(alpha = 0.5f),
+                                CinemaNavy,
+                                CinemaBlue.copy(alpha = 0.7f),
                             )
                         )
                     ),

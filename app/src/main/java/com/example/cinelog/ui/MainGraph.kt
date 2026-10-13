@@ -57,6 +57,8 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.cinelog.auth.AuthViewModel
 import com.example.cinelog.profile.ProfileSetupDialog
+import com.example.cinelog.ui.chat.ChatScreen
+import com.example.cinelog.ui.chat.ConversationsScreen
 import com.example.cinelog.ui.components.AppScaffold
 import com.example.cinelog.ui.details.MovieDetailsScreen
 import com.example.cinelog.ui.home.HomeFeedScreen
@@ -148,6 +150,9 @@ fun androidx.navigation.NavGraphBuilder.mainGraph(
                                 launchSingleTop = true
                                 restoreState = true
                             }
+                        },
+                        onNavigateToConversations = {
+                            navController.navigate(Route.Conversations.value)
                         },
                     )
                 }
@@ -252,6 +257,40 @@ fun androidx.navigation.NavGraphBuilder.mainGraph(
             },
             onUserClick = { clickedUserId ->
                 navController.navigate(Route.UserProfile.create(clickedUserId))
+            },
+            onMessageClick = { targetUserId ->
+                navController.navigate(Route.Chat.create(targetUserId))
+            },
+        )
+    }
+
+    composable(
+        route = Route.Conversations.value,
+        enterTransition = { fadeIn() + slideInHorizontally { it } },
+        exitTransition = { fadeOut() + slideOutHorizontally { -it } },
+        popEnterTransition = { fadeIn() + slideInHorizontally { -it } },
+        popExitTransition = { fadeOut() + slideOutHorizontally { it } },
+    ) {
+        ConversationsScreen(
+            onNavigateBack = { navController.popBackStack() },
+            onNavigateToChat = { targetUserId ->
+                navController.navigate(Route.Chat.create(targetUserId))
+            },
+        )
+    }
+
+    composable(
+        route = Route.Chat.value,
+        arguments = listOf(navArgument(Route.Chat.argUserId) { type = NavType.StringType }),
+        enterTransition = { fadeIn() + slideInHorizontally { it } },
+        exitTransition = { fadeOut() + slideOutHorizontally { -it } },
+        popEnterTransition = { fadeIn() + slideInHorizontally { -it } },
+        popExitTransition = { fadeOut() + slideOutHorizontally { it } },
+    ) {
+        ChatScreen(
+            onNavigateBack = { navController.popBackStack() },
+            onNavigateToProfile = { userId ->
+                navController.navigate(Route.UserProfile.create(userId))
             },
         )
     }

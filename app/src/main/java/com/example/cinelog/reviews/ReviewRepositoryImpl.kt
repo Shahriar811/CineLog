@@ -201,6 +201,40 @@ class ReviewRepositoryImpl @Inject constructor(
         }.await()
     }
 
+    override suspend fun updateReview(reviewId: String, ratingOutOf10: Int, reviewText: String) {
+        require(reviewText.isNotBlank()) { "Review text cannot be empty." }
+        require(ratingOutOf10 in 1..10) { "Rating must be between 1 and 10." }
+        val uid = requireUserId()
+        val db = requireFirestore()
+        val docRef = db.collection("reviews").document(reviewId)
+
+        val doc = docRef.get().await()
+        require(doc.exists()) { "Review not found." }
+        val ownerId = doc.getString("userId").orEmpty()
+        require(ownerId == uid) { "You can only edit your own reviews." }
+
+        docRef.update(
+            mapOf(
+                "ratingOutOf10" to ratingOutOf10,
+                "reviewText" to reviewText.trim(),
+                "updatedAtMillis" to System.currentTimeMillis(),
+            )
+        ).await()
+    }
+
+    override suspend fun deleteReview(reviewId: String) {
+        val uid = requireUserId()
+        val db = requireFirestore()
+        val docRef = db.collection("reviews").document(reviewId)
+
+        val doc = docRef.get().await()
+        if (!doc.exists()) return
+        val ownerId = doc.getString("userId").orEmpty()
+        require(ownerId == uid) { "You can only delete your own reviews." }
+
+        docRef.delete().await()
+    }
+
     override fun commentsForReview(reviewId: String): Flow<List<ReviewComment>> = callbackFlow {
         val db = requireFirestore()
         val listener = db.collection("reviews").document(reviewId)

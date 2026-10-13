@@ -24,6 +24,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.CameraAlt
+import androidx.compose.material.icons.rounded.Chat
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Favorite
@@ -67,12 +68,14 @@ import com.example.cinelog.ui.components.CineLogGradientBackground
 import com.example.cinelog.ui.components.SocialReviewCard
 import com.example.cinelog.ui.components.UserAvatar
 import com.example.cinelog.ui.theme.CinemaAmber
+import com.example.cinelog.ui.theme.CinemaNavy
 
 @Composable
 fun UserProfileScreen(
     onBack: () -> Unit,
     onMovieClick: (Long) -> Unit,
     onUserClick: (String) -> Unit,
+    onMessageClick: ((String) -> Unit)? = null,
     viewModel: UserProfileViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
@@ -251,35 +254,62 @@ fun UserProfileScreen(
                         }
                     }
 
-                    // Follow / Following Action Button (for other users)
+                    // Follow / Following & Message Action Buttons (for other users)
                     if (!state.isCurrentUser && profile != null) {
                         Spacer(Modifier.height(14.dp))
-                        Button(
-                            onClick = { viewModel.toggleFollow() },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = if (state.isFollowing) {
-                                    MaterialTheme.colorScheme.surfaceVariant
-                                } else {
-                                    CinemaAmber
-                                },
-                                contentColor = if (state.isFollowing) {
-                                    MaterialTheme.colorScheme.onSurface
-                                } else {
-                                    Color.White
-                                },
-                            ),
-                            shape = RoundedCornerShape(20.dp),
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(10.dp),
+                            verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            Icon(
-                                imageVector = if (state.isFollowing) Icons.Rounded.Check else Icons.Rounded.PersonAdd,
-                                contentDescription = null,
-                                modifier = Modifier.size(18.dp),
-                            )
-                            Spacer(Modifier.width(6.dp))
-                            Text(
-                                text = if (state.isFollowing) "Following" else "Follow",
-                                fontWeight = FontWeight.Bold,
-                            )
+                            Button(
+                                onClick = { viewModel.toggleFollow() },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = if (state.isFollowing) {
+                                        MaterialTheme.colorScheme.surfaceVariant
+                                    } else {
+                                        CinemaAmber
+                                    },
+                                    contentColor = if (state.isFollowing) {
+                                        MaterialTheme.colorScheme.onSurface
+                                    } else {
+                                        Color.White
+                                    },
+                                ),
+                                shape = RoundedCornerShape(20.dp),
+                            ) {
+                                Icon(
+                                    imageVector = if (state.isFollowing) Icons.Rounded.Check else Icons.Rounded.PersonAdd,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(18.dp),
+                                )
+                                Spacer(Modifier.width(6.dp))
+                                Text(
+                                    text = if (state.isFollowing) "Following" else "Follow",
+                                    fontWeight = FontWeight.Bold,
+                                )
+                            }
+
+                            if (onMessageClick != null) {
+                                Button(
+                                    onClick = { onMessageClick(profile.userId) },
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = CinemaNavy,
+                                        contentColor = Color.White,
+                                    ),
+                                    shape = RoundedCornerShape(20.dp),
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Rounded.Chat,
+                                        contentDescription = "Message",
+                                        modifier = Modifier.size(18.dp),
+                                    )
+                                    Spacer(Modifier.width(6.dp))
+                                    Text(
+                                        text = "Message",
+                                        fontWeight = FontWeight.Bold,
+                                    )
+                                }
+                            }
                         }
                     }
 
@@ -370,6 +400,8 @@ fun UserProfileScreen(
                             onToggleDislike = viewModel::toggleDislike,
                             commentsFlow = viewModel.commentsForReview(review.id),
                             onAddComment = viewModel::addComment,
+                            onEditReview = viewModel::updateReview,
+                            onDeleteReview = viewModel::deleteReview,
                         )
                     }
                 }

@@ -24,25 +24,38 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ChatBubbleOutline
+import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.FormatQuote
+import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.Movie
+import androidx.compose.material.icons.rounded.Schedule
 import androidx.compose.material.icons.rounded.Send
 import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material.icons.rounded.ThumbDown
 import androidx.compose.material.icons.rounded.ThumbDownOffAlt
 import androidx.compose.material.icons.rounded.ThumbUp
 import androidx.compose.material.icons.rounded.ThumbUpOffAlt
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import com.example.cinelog.ui.theme.Danger
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -78,18 +91,30 @@ fun SocialReviewCard(
     onToggleDislike: (String) -> Unit,
     commentsFlow: Flow<List<ReviewComment>>,
     onAddComment: (String, String) -> Unit,
+    onEditReview: ((reviewId: String, newRating: Int, newText: String) -> Unit)? = null,
+    onDeleteReview: ((reviewId: String) -> Unit)? = null,
     modifier: Modifier = Modifier,
 ) {
     val coroutineScope = rememberCoroutineScope()
     var isCommentsExpanded by remember { mutableStateOf(false) }
     var commentInput by remember { mutableStateOf("") }
     var isSubmittingComment by remember { mutableStateOf(false) }
+    var showMenu by remember { mutableStateOf(false) }
+    var showEditDialog by remember { mutableStateOf(false) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
+    var editRating by remember(review.ratingOutOf10) { mutableStateOf(review.ratingOutOf10) }
+    var editText by remember(review.reviewText) { mutableStateOf(review.reviewText) }
 
     val comments by commentsFlow.collectAsState(initial = emptyList())
     val isLiked = currentUserId != null && review.likedBy.contains(currentUserId)
     val isDisliked = currentUserId != null && review.dislikedBy.contains(currentUserId)
 
-    val formattedDate = remember(review.createdAtMillis) {
+    val fullDateTime = remember(review.createdAtMillis) {
+        if (review.createdAtMillis <= 0L) "" else {
+            SimpleDateFormat("MMM d, yyyy • h:mm a", Locale.getDefault()).format(Date(review.createdAtMillis))
+        }
+    }
+    val relativeTime = remember(review.createdAtMillis) {
         if (review.createdAtMillis <= 0L) "" else {
             val now = System.currentTimeMillis()
             val diff = now - review.createdAtMillis
@@ -97,7 +122,8 @@ fun SocialReviewCard(
                 diff < 60_000L -> "Just now"
                 diff < 3600_000L -> "${diff / 60_000L}m ago"
                 diff < 86400_000L -> "${diff / 3600_000L}h ago"
-                else -> SimpleDateFormat("MMM d", Locale.getDefault()).format(Date(review.createdAtMillis))
+                diff < 604800_000L -> "${diff / 86400_000L}d ago"
+                else -> ""
             }
         }
     }
@@ -149,54 +175,117 @@ fun SocialReviewCard(
                             overflow = TextOverflow.Ellipsis,
                         )
 
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(6.dp),
-                        ) {
-                            if (review.userUsername.isNotBlank()) {
-                                Text(
-                                    text = "@${review.userUsername}",
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = CinemaAmber,
-                                    fontWeight = FontWeight.Bold,
+                        if (review.userUsername.isNotBlank()) {
+                            Text(
+                                text = "@${review.userUsername}",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = CinemaAmber,
+                                fontWeight = FontWeight.Bold,
+                            )
+                        }
+
+                        // Posted Timestamp — exact date and time visible to everyone
+                        if (fullDateTime.isNotBlank()) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                modifier = Modifier.padding(top = 2.dp),
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Rounded.Schedule,
+                                    contentDescription = "Posted time",
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.65f),
+                                    modifier = Modifier.size(11.dp),
                                 )
-                            }
-                            if (formattedDate.isNotBlank()) {
                                 Text(
-                                    text = "• $formattedDate",
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.65f),
+                                    text = if (relativeTime.isNotBlank()) "$fullDateTime ($relativeTime)" else fullDateTime,
+                                    style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.75f),
                                 )
                             }
                         }
                     }
                 }
 
-                // Score Badge
-                Box(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(10.dp))
-                        .background(CinemaAmber.copy(alpha = 0.16f))
-                        .border(1.dp, CinemaAmber.copy(alpha = 0.4f), RoundedCornerShape(10.dp))
-                        .padding(horizontal = 9.dp, vertical = 5.dp),
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    // Score Badge
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(CinemaAmber.copy(alpha = 0.16f))
+                            .border(1.dp, CinemaAmber.copy(alpha = 0.4f), RoundedCornerShape(10.dp))
+                            .padding(horizontal = 9.dp, vertical = 5.dp),
                     ) {
-                        Icon(
-                            imageVector = Icons.Rounded.Star,
-                            contentDescription = null,
-                            tint = CinemaAmber,
-                            modifier = Modifier.size(15.dp),
-                        )
-                        Text(
-                            text = "${review.ratingOutOf10}/10",
-                            style = MaterialTheme.typography.labelMedium.copy(
-                                fontWeight = FontWeight.ExtraBold,
-                                color = CinemaAmber,
-                            ),
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        ) {
+                            Icon(
+                                imageVector = Icons.Rounded.Star,
+                                contentDescription = null,
+                                tint = CinemaAmber,
+                                modifier = Modifier.size(15.dp),
+                            )
+                            Text(
+                                text = "${review.ratingOutOf10}/10",
+                                style = MaterialTheme.typography.labelMedium.copy(
+                                    fontWeight = FontWeight.ExtraBold,
+                                    color = CinemaAmber,
+                                ),
+                            )
+                        }
+                    }
+
+                    // Overflow Action Menu for Review Owner (Edit / Delete)
+                    if (currentUserId != null && review.userId == currentUserId && (onEditReview != null || onDeleteReview != null)) {
+                        Box {
+                            IconButton(
+                                onClick = { showMenu = true },
+                                modifier = Modifier.size(32.dp),
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Rounded.MoreVert,
+                                    contentDescription = "Review options",
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.size(18.dp),
+                                )
+                            }
+
+                            DropdownMenu(
+                                expanded = showMenu,
+                                onDismissRequest = { showMenu = false },
+                            ) {
+                                if (onEditReview != null) {
+                                    DropdownMenuItem(
+                                        text = { Text("Edit Review") },
+                                        leadingIcon = {
+                                            Icon(Icons.Rounded.Edit, contentDescription = null, tint = CinemaAmber)
+                                        },
+                                        onClick = {
+                                            showMenu = false
+                                            editRating = review.ratingOutOf10
+                                            editText = review.reviewText
+                                            showEditDialog = true
+                                        },
+                                    )
+                                }
+                                if (onDeleteReview != null) {
+                                    DropdownMenuItem(
+                                        text = { Text("Delete Review", color = Danger) },
+                                        leadingIcon = {
+                                            Icon(Icons.Rounded.Delete, contentDescription = null, tint = Danger)
+                                        },
+                                        onClick = {
+                                            showMenu = false
+                                            showDeleteDialog = true
+                                        },
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -470,5 +559,113 @@ fun SocialReviewCard(
                 }
             }
         }
+    }
+
+    // ── Edit Review Dialog ──
+    if (showEditDialog && onEditReview != null) {
+        AlertDialog(
+            onDismissRequest = { showEditDialog = false },
+            title = {
+                Text("Edit Your Review", fontWeight = FontWeight.Bold)
+            },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text(
+                        text = review.movieTitle,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = CinemaAmber,
+                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        Icon(Icons.Rounded.Star, contentDescription = null, tint = CinemaAmber, modifier = Modifier.size(18.dp))
+                        Text(
+                            text = "Score: $editRating/10",
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.Bold,
+                        )
+                    }
+                    Slider(
+                        value = editRating.toFloat(),
+                        onValueChange = { editRating = it.toInt() },
+                        valueRange = 1f..10f,
+                        steps = 8,
+                        colors = SliderDefaults.colors(
+                            thumbColor = CinemaAmber,
+                            activeTrackColor = CinemaAmber,
+                        ),
+                    )
+                    OutlinedTextField(
+                        value = editText,
+                        onValueChange = { editText = it },
+                        label = { Text("Your Review") },
+                        modifier = Modifier.fillMaxWidth(),
+                        minLines = 3,
+                        maxLines = 6,
+                        shape = RoundedCornerShape(12.dp),
+                    )
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        if (editText.isNotBlank()) {
+                            onEditReview(review.id, editRating, editText.trim())
+                            showEditDialog = false
+                        }
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = CinemaAmber,
+                        contentColor = Color.White,
+                    ),
+                    shape = RoundedCornerShape(12.dp),
+                ) {
+                    Text("Save Changes", fontWeight = FontWeight.Bold)
+                }
+            },
+            dismissButton = {
+                OutlinedButton(onClick = { showEditDialog = false }) {
+                    Text("Cancel")
+                }
+            },
+        )
+    }
+
+    // ── Delete Review Dialog ──
+    if (showDeleteDialog && onDeleteReview != null) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            title = {
+                Text("Delete Review?", fontWeight = FontWeight.Bold)
+            },
+            text = {
+                Text(
+                    text = "Are you sure you want to permanently delete your review for \"${review.movieTitle}\"? This cannot be undone.",
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        onDeleteReview(review.id)
+                        showDeleteDialog = false
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Danger,
+                        contentColor = Color.White,
+                    ),
+                    shape = RoundedCornerShape(12.dp),
+                ) {
+                    Text("Delete", fontWeight = FontWeight.Bold)
+                }
+            },
+            dismissButton = {
+                OutlinedButton(onClick = { showDeleteDialog = false }) {
+                    Text("Cancel")
+                }
+            },
+        )
     }
 }

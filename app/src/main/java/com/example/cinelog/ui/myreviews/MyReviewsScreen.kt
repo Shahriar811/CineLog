@@ -272,6 +272,8 @@ fun MyReviewsScreen(
                             onToggleDislike = viewModel::toggleDislike,
                             commentsFlow = viewModel.commentsForReview(review.id),
                             onAddComment = viewModel::addComment,
+                            onEditReview = viewModel::updateReview,
+                            onDeleteReview = viewModel::deleteReview,
                         )
                     }
                 }

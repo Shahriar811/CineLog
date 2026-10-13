@@ -19,6 +19,9 @@ interface ReviewRepository {
     suspend fun toggleLike(reviewId: String)
     suspend fun toggleDislike(reviewId: String)
 
+    suspend fun updateReview(reviewId: String, ratingOutOf10: Int, reviewText: String)
+    suspend fun deleteReview(reviewId: String)
+
     fun commentsForReview(reviewId: String): Flow<List<ReviewComment>>
     suspend fun addComment(reviewId: String, text: String)
 }

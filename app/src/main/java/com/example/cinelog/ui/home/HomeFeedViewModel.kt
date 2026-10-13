@@ -126,6 +126,18 @@ class HomeFeedViewModel @Inject constructor(
         }
     }
 
+    fun updateReview(reviewId: String, newRating: Int, newText: String) {
+        viewModelScope.launch {
+            reviewRepository.updateReview(reviewId, newRating, newText)
+        }
+    }
+
+    fun deleteReview(reviewId: String) {
+        viewModelScope.launch {
+            reviewRepository.deleteReview(reviewId)
+        }
+    }
+
     fun isFollowing(userId: String): Flow<Boolean> {
         return socialRepository.isFollowing(userId)
     }

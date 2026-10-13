@@ -140,4 +140,16 @@ class UserProfileViewModel @Inject constructor(
             reviewRepository.addComment(reviewId, text)
         }
     }
+
+    fun updateReview(reviewId: String, newRating: Int, newText: String) {
+        viewModelScope.launch {
+            reviewRepository.updateReview(reviewId, newRating, newText)
+        }
+    }
+
+    fun deleteReview(reviewId: String) {
+        viewModelScope.launch {
+            reviewRepository.deleteReview(reviewId)
+        }
+    }
 }

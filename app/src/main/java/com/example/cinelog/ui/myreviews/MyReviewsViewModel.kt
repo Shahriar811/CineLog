@@ -91,4 +91,24 @@ class MyReviewsViewModel @Inject constructor(
             reviewRepository.addComment(reviewId, text)
         }
     }
+
+    fun updateReview(reviewId: String, newRating: Int, newText: String) {
+        viewModelScope.launch {
+            runCatching {
+                reviewRepository.updateReview(reviewId, newRating, newText)
+            }.onFailure { e ->
+                _state.value = _state.value.copy(error = e.localizedMessage)
+            }
+        }
+    }
+
+    fun deleteReview(reviewId: String) {
+        viewModelScope.launch {
+            runCatching {
+                reviewRepository.deleteReview(reviewId)
+            }.onFailure { e ->
+                _state.value = _state.value.copy(error = e.localizedMessage)
+            }
+        }
+    }
 }

@@ -21,4 +21,10 @@ sealed class Route(val value: String) {
         fun create(userId: String) = "user_profile/$userId"
         const val argUserId = "userId"
     }
+    data object Conversations : Route("conversations")
+    data object Chat : Route("chat/{userId}") {
+        fun create(userId: String) = "chat/$userId"
+        const val argUserId = "userId"
+    }
 }
+

@@ -30,6 +30,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.Send
 import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.ChatBubbleOutline
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Clear
 import androidx.compose.material.icons.rounded.DynamicFeed
@@ -88,6 +89,7 @@ fun HomeFeedScreen(
     onMovieClick: (Long) -> Unit,
     onUserClick: (String) -> Unit,
     onNavigateToSearch: () -> Unit,
+    onNavigateToConversations: () -> Unit = {},
     modifier: Modifier = Modifier,
     viewModel: HomeFeedViewModel = hiltViewModel(),
 ) {
@@ -108,6 +110,7 @@ fun HomeFeedScreen(
                 onUserClick = onUserClick,
                 isSearchActive = state.isSearchActive,
                 onToggleSearch = { viewModel.setSearchActive(!state.isSearchActive) },
+                onNavigateToConversations = onNavigateToConversations,
             )
 
             Spacer(Modifier.height(12.dp))
@@ -214,6 +217,7 @@ private fun HomeTopHeader(
     onUserClick: (String) -> Unit,
     isSearchActive: Boolean,
     onToggleSearch: () -> Unit,
+    onNavigateToConversations: () -> Unit = {},
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -272,6 +276,22 @@ private fun HomeTopHeader(
                     imageVector = if (isSearchActive) Icons.Rounded.Clear else Icons.Rounded.PersonAdd,
                     contentDescription = "Search Friends",
                     tint = if (isSearchActive) CinemaAmber else MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.size(19.dp),
+                )
+            }
+
+            // Direct Messages Button
+            IconButton(
+                onClick = onNavigateToConversations,
+                modifier = Modifier
+                    .size(38.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.ChatBubbleOutline,
+                    contentDescription = "Messages",
+                    tint = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.size(19.dp),
                 )
             }
@@ -552,6 +572,12 @@ private fun ReviewFeedList(
                 onToggleDislike = { viewModel.toggleDislike(it) },
                 commentsFlow = viewModel.commentsForReview(review.id),
                 onAddComment = { reviewId, text -> viewModel.addComment(reviewId, text) },
+                onEditReview = { reviewId, newRating, newText ->
+                    viewModel.updateReview(reviewId, newRating, newText)
+                },
+                onDeleteReview = { reviewId ->
+                    viewModel.deleteReview(reviewId)
+                },
             )
         }
     }
