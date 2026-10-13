@@ -9,6 +9,8 @@ import com.example.cinelog.profile.UserStats
 import com.example.cinelog.reviews.MovieReview
 import com.example.cinelog.reviews.ReviewComment
 import com.example.cinelog.reviews.ReviewRepository
+import com.example.cinelog.social.FollowStats
+import com.example.cinelog.social.SocialRepository
 import com.example.cinelog.ui.navigation.Route
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -24,6 +26,8 @@ import javax.inject.Inject
 data class UserProfileUiState(
     val profile: UserProfile? = null,
     val stats: UserStats = UserStats(),
+    val followStats: FollowStats = FollowStats(),
+    val isFollowing: Boolean = false,
     val reviews: List<MovieReview> = emptyList(),
     val isLoading: Boolean = true,
     val isCurrentUser: Boolean = false,
@@ -34,6 +38,7 @@ class UserProfileViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val profileRepository: ProfileRepository,
     private val reviewRepository: ReviewRepository,
+    private val socialRepository: SocialRepository,
     private val firebaseAuth: FirebaseAuth?,
 ) : ViewModel() {
 
@@ -78,6 +83,27 @@ class UserProfileViewModel @Inject constructor(
             reviewRepository.userReviews(targetUserId).collect { reviews ->
                 _uiState.value = _uiState.value.copy(reviews = reviews)
             }
+        }
+
+        viewModelScope.launch {
+            socialRepository.getFollowStats(targetUserId).collect { stats ->
+                _uiState.value = _uiState.value.copy(followStats = stats)
+            }
+        }
+
+        if (currentUserId != null && targetUserId != currentUserId) {
+            viewModelScope.launch {
+                socialRepository.isFollowing(targetUserId).collect { following ->
+                    _uiState.value = _uiState.value.copy(isFollowing = following)
+                }
+            }
+        }
+    }
+
+    fun toggleFollow() {
+        if (targetUserId.isBlank() || targetUserId == currentUserId) return
+        viewModelScope.launch {
+            socialRepository.toggleFollow(targetUserId)
         }
     }
 

@@ -3,6 +3,7 @@ package com.example.cinelog.ui.navigation
 sealed class Route(val value: String) {
     data object Auth : Route("auth")
     data object Main : Route("main")
+    data object Home : Route("home")
     data object Trending : Route("trending")
     data object Search : Route("search")
     data object Lists : Route("lists")

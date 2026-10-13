@@ -3,13 +3,24 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // User Profiles: public to read, editable only by the owner
+    // User Profiles: public to read, editable by owner or authenticated social actions
     match /users/{userId} {
       allow read: if true;
-      allow create, update: if request.auth != null && request.auth.uid == userId;
+      allow create: if request.auth != null && request.auth.uid == userId;
+      allow update: if request.auth != null;
       allow delete: if false;
 
       match /movieLists/{listId} {
+        allow read: if true;
+        allow write: if request.auth != null && request.auth.uid == userId;
+      }
+
+      match /followers/{followerId} {
+        allow read: if true;
+        allow write: if request.auth != null && request.auth.uid == followerId;
+      }
+
+      match /following/{followedId} {
         allow read: if true;
         allow write: if request.auth != null && request.auth.uid == userId;
       }
@@ -27,7 +38,7 @@ service cloud.firestore {
       allow read: if true;
       allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
       // Allow authenticated users to update (likes, dislikes, commentCount, or author edits)
-      allow update: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow update: if request.auth != null;
       allow delete: if request.auth != null && resource.data.userId == request.auth.uid;
 
       // Comments on reviews

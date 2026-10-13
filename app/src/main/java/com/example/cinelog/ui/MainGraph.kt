@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material.icons.rounded.RateReview
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Tune
@@ -58,6 +59,7 @@ import com.example.cinelog.auth.AuthViewModel
 import com.example.cinelog.profile.ProfileSetupDialog
 import com.example.cinelog.ui.components.AppScaffold
 import com.example.cinelog.ui.details.MovieDetailsScreen
+import com.example.cinelog.ui.home.HomeFeedScreen
 import com.example.cinelog.ui.lists.ListDetailScreen
 import com.example.cinelog.ui.lists.ListsScreen
 import com.example.cinelog.ui.myreviews.MyReviewsScreen
@@ -97,10 +99,10 @@ fun androidx.navigation.NavGraphBuilder.mainGraph(
         }
 
         val items = listOf(
+            NavItemData(Route.Home, "Home", Icons.Rounded.Home),
             NavItemData(Route.Trending, "Trending", Icons.Rounded.Whatshot),
             NavItemData(Route.Search, "Search", Icons.Rounded.Search),
             NavItemData(Route.Lists, "Lists", Icons.Rounded.VideoLibrary),
-            NavItemData(Route.MyReviews, "Reviews", Icons.Rounded.RateReview),
             NavItemData(Route.Settings, "Settings", Icons.Rounded.Tune),
         )
 
@@ -125,13 +127,30 @@ fun androidx.navigation.NavGraphBuilder.mainGraph(
         ) { innerPadding ->
             NavHost(
                 navController = mainNavController,
-                startDestination = Route.Trending.value,
+                startDestination = Route.Home.value,
                 modifier = Modifier.padding(innerPadding),
                 enterTransition = { fadeIn() + slideInHorizontally { it / 6 } },
                 exitTransition = { fadeOut() + slideOutHorizontally { -it / 6 } },
                 popEnterTransition = { fadeIn() + slideInHorizontally { -it / 6 } },
                 popExitTransition = { fadeOut() + slideOutHorizontally { it / 6 } },
             ) {
+                composable(Route.Home.value) {
+                    HomeFeedScreen(
+                        onMovieClick = { movieId ->
+                            navController.navigate(Route.MovieDetails.create(movieId))
+                        },
+                        onUserClick = { userId ->
+                            navController.navigate(Route.UserProfile.create(userId))
+                        },
+                        onNavigateToSearch = {
+                            mainNavController.navigate(Route.Search.value) {
+                                popUpTo(mainNavController.graph.startDestinationId) { saveState = true }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        },
+                    )
+                }
                 composable(Route.Trending.value) {
                     TrendingScreen(
                         onMovieClick = { movieId ->

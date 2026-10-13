@@ -24,11 +24,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.CameraAlt
+import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material.icons.rounded.Movie
 import androidx.compose.material.icons.rounded.Person
+import androidx.compose.material.icons.rounded.PersonAdd
 import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -249,24 +251,62 @@ fun UserProfileScreen(
                         }
                     }
 
+                    // Follow / Following Action Button (for other users)
+                    if (!state.isCurrentUser && profile != null) {
+                        Spacer(Modifier.height(14.dp))
+                        Button(
+                            onClick = { viewModel.toggleFollow() },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = if (state.isFollowing) {
+                                    MaterialTheme.colorScheme.surfaceVariant
+                                } else {
+                                    CinemaAmber
+                                },
+                                contentColor = if (state.isFollowing) {
+                                    MaterialTheme.colorScheme.onSurface
+                                } else {
+                                    Color(0xFF1E1400)
+                                },
+                            ),
+                            shape = RoundedCornerShape(20.dp),
+                        ) {
+                            Icon(
+                                imageVector = if (state.isFollowing) Icons.Rounded.Check else Icons.Rounded.PersonAdd,
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp),
+                            )
+                            Spacer(Modifier.width(6.dp))
+                            Text(
+                                text = if (state.isFollowing) "Following" else "Follow",
+                                fontWeight = FontWeight.Bold,
+                            )
+                        }
+                    }
+
                     Spacer(Modifier.height(20.dp))
 
-                    // Stats Row
+                    // Social & Cinema Stats Row
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
+                        StatCard(
+                            modifier = Modifier.weight(1f),
+                            icon = Icons.Rounded.Person,
+                            value = "${state.followStats.followersCount}",
+                            label = "Followers",
+                        )
+                        StatCard(
+                            modifier = Modifier.weight(1f),
+                            icon = Icons.Rounded.PersonAdd,
+                            value = "${state.followStats.followingCount}",
+                            label = "Following",
+                        )
                         StatCard(
                             modifier = Modifier.weight(1f),
                             icon = Icons.Rounded.Movie,
                             value = "${state.stats.moviesRatedCount}",
                             label = "Rated",
-                        )
-                        StatCard(
-                            modifier = Modifier.weight(1f),
-                            icon = Icons.Rounded.Star,
-                            value = if (state.stats.moviesRatedCount > 0) String.format("%.1f", state.stats.averageScore) else "-",
-                            label = "Avg Score",
                         )
                         StatCard(
                             modifier = Modifier.weight(1f),
